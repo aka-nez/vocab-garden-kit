@@ -1,0 +1,12 @@
+{
+  "LEARNER_NAME": "Alex",
+  "LEARNER_PROFILE": "adult, upper-intermediate learner, Russian speaker, works as a product designer in Berlin",
+  "NATIVE_LANG": "Russian",
+  "PROJECT_NAME": "English (Alex)",
+  "ARTIFACT_URL": "",
+  "VOICE": "eric",
+  "TTS_MODEL": "elevenlabs/eleven-v4",
+  "KEY_FILE": "/Users/alex/Documents/vocab-garden/openrouter.key",
+  "KEY_FOLDER": "/Users/alex/Documents/vocab-garden",
+  "TIMEZONE": "Europe/Berlin"
+}

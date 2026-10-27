@@ -1,0 +1,17 @@
+# per-learner + secrets
+config.json
+*.key
+.env
+build/
+# pipeline scratch
+store/
+out/
+out*/
+audio/
+mp3/
+upload/
+audio_docs/
+uploads.json
+jobs.json
+__pycache__/
+.DS_Store

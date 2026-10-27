@@ -1,0 +1,88 @@
+[
+ {
+  "phrase": "take sth for granted",
+  "definition": "fail to appreciate sth because it is always there",
+  "type": "phrase",
+  "kind": "target",
+  "source": "chat",
+  "lesson_date": "07.10",
+  "unit_no": 1,
+  "unit_title": "Life Lessons",
+  "evidence": "we take clean water for granted",
+  "ru": "принимать как должное",
+  "inflects": true,
+  "example": "Most people take clean tap water for granted until a pipe bursts downtown.",
+  "answer": "take clean tap water for granted",
+  "example_form": "present simple",
+  "example_context": "city",
+  "more_examples": [
+   {
+    "example": "After the long hike, Maria realized she had taken her comfortable bed for granted.",
+    "answer": "had taken her comfortable bed for granted",
+    "form": "past perfect",
+    "context": "travel"
+   },
+   {
+    "example": "Please stop taking your grandmother's cooking for granted and thank her tonight.",
+    "answer": "taking your grandmother's cooking for granted",
+    "form": "-ing form",
+    "context": "family"
+   },
+   {
+    "example": "Our team took the old server for granted, and then it crashed on Monday.",
+    "answer": "took the old server for granted",
+    "form": "past simple",
+    "context": "tech"
+   },
+   {
+    "example": "Will you ever take a sunny weekend for granted again after this rainy year?",
+    "answer": "take a sunny weekend for granted",
+    "form": "will future question",
+    "context": "weather"
+   }
+  ]
+ },
+ {
+  "phrase": "cut corners",
+  "definition": "do sth badly or cheaply to save time or money",
+  "type": "idiom",
+  "kind": "feedback",
+  "source": "chat",
+  "lesson_date": "09.10",
+  "unit_no": 1,
+  "unit_title": "Life Lessons",
+  "evidence": "teacher note: don't cut corners",
+  "ru": "халтурить, срезать углы",
+  "inflects": true,
+  "example": "The builders cut corners on the roof, so it started leaking within a month.",
+  "answer": "cut corners",
+  "example_form": "past simple",
+  "example_context": "home",
+  "more_examples": [
+   {
+    "example": "If you are cutting corners on sleep before exams, your memory suffers.",
+    "answer": "are cutting corners",
+    "form": "present continuous",
+    "context": "study"
+   },
+   {
+    "example": "That bakery has cut corners lately, and regulars noticed the cheaper butter.",
+    "answer": "has cut corners",
+    "form": "present perfect",
+    "context": "food"
+   },
+   {
+    "example": "Coaches warn young runners not to cut corners during their warm up.",
+    "answer": "cut corners",
+    "form": "infinitive",
+    "context": "sport"
+   },
+   {
+    "example": "Our accountant never cuts corners and checks every invoice twice.",
+    "answer": "cuts corners",
+    "form": "present simple",
+    "context": "money"
+   }
+  ]
+ }
+]

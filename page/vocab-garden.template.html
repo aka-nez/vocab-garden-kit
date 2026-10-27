@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{LEARNER_NAME}}'s Vocab Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+/* Layout: one phone-first study column; dashboard (today → filters → garden by unit → latest) and a full-card quiz view.
+   Phrase = amber, meaning = sky, growth = leaf greens. */
+:root{
+  --bg:#f3f5f0; --surface:#ffffff; --surface-2:#e9ede5; --line:#d5dccf;
+  --ink:#17201a; --ink-2:#536056; --ink-3:#7c887f;
+  --leaf:#2d6a43; --leaf-ink:#ffffff; --leaf-soft:#dbeadf;
+  --phrase-bg:#f6e3ba; --phrase-ink:#5e400c;
+  --meaning-bg:#dce7fb; --meaning-ink:#1d3d75;
+  --good:#24804f; --good-bg:#dff1e6; --bad:#b83d35; --bad-bg:#f8e1de; --warn:#99600f;
+  --s0:#cfd5cb; --s1:#c5dfb3; --s2:#9fcb8b; --s3:#6fae6c; --s4:#3f8c55; --s5:#245f3a;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:14px; --r-sm:9px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1310; --surface:#161d18; --surface-2:#1e2620; --line:#2b3530;
+  --ink:#e5ebe5; --ink-2:#a6b3a9; --ink-3:#7d8a80;
+  --leaf:#7cc495; --leaf-ink:#0c1a11; --leaf-soft:#1f3527;
+  --phrase-bg:#3b2f17; --phrase-ink:#f3d79f;
+  --meaning-bg:#1a2944; --meaning-ink:#c4d8ff;
+  --good:#5cc489; --good-bg:#16301f; --bad:#f07d73; --bad-bg:#3a1d1a; --warn:#e8b25a;
+  --s0:#323b35; --s1:#3c5a33; --s2:#4d7a45; --s3:#5f9c5c; --s4:#7cc495; --s5:#b4e6c2;
+  color-scheme:dark; }}
+:root[data-theme="dark"]{
+  --bg:#0e1310; --surface:#161d18; --surface-2:#1e2620; --line:#2b3530;
+  --ink:#e5ebe5; --ink-2:#a6b3a9; --ink-3:#7d8a80;
+  --leaf:#7cc495; --leaf-ink:#0c1a11; --leaf-soft:#1f3527;
+  --phrase-bg:#3b2f17; --phrase-ink:#f3d79f;
+  --meaning-bg:#1a2944; --meaning-ink:#c4d8ff;
+  --good:#5cc489; --good-bg:#16301f; --bad:#f07d73; --bad-bg:#3a1d1a; --warn:#e8b25a;
+  --s0:#323b35; --s1:#3c5a33; --s2:#4d7a45; --s3:#5f9c5c; --s4:#7cc495; --s5:#b4e6c2;
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:20px 56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:800;line-height:1.05}
+h2{font-size:1.25rem;font-weight:700}
+.label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.muted{color:var(--ink-2)}
+a{color:var(--leaf)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.tnum{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* header */
+.top{display:grid;gap:8px;margin-bottom:18px}
+.top .sync{font-size:.88rem;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:2px 0}
+.top .sync > *:not(:last-child)::after{content:"·";margin-inline:8px;color:var(--ink-3)}
+.tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px;width:max-content;margin-bottom:18px}
+.tabs button{border:0;background:transparent;padding:7px 16px;border-radius:999px;font-weight:700;color:var(--ink-2)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+
+/* today panel */
+.today{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:16px}
+.today-head{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+.big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1}
+.stat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .n{font-family:var(--f-display);font-weight:700;font-size:1.5rem;line-height:1.1}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-weight:700}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--leaf);color:var(--leaf-ink);border-color:var(--leaf);padding:12px 22px;font-size:1.05rem}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.small{padding:5px 12px;font-size:.88rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+select{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 12px}
+
+/* filters */
+.filters{display:grid;gap:10px;margin-block:22px 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:.9rem;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fsum{font-size:.88rem;color:var(--ink-2)}
+
+/* garden list */
+section{margin-top:30px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.units{display:grid;gap:2px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.unit{background:var(--surface);padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center}
+.unit .name{font-weight:700;min-width:0}
+.unit .name small{font-family:var(--f-mono);font-size:.7rem;color:var(--ink-3);letter-spacing:.06em;margin-right:6px}
+.unit .meta{font-size:.82rem;color:var(--ink-2)}
+.bar{grid-column:1 / -1;display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--s0)}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--ink-2);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* word rows */
+.words{display:grid;gap:8px}
+.word{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;display:grid;gap:6px;min-width:0}
+.word-top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+.phrase{display:inline;background:var(--phrase-bg);color:var(--phrase-ink);font-family:var(--f-display);font-weight:700;padding:1px 8px;border-radius:6px;box-decoration-break:clone;-webkit-box-decoration-break:clone;line-height:1.6}
+.meaning{display:inline;background:var(--meaning-bg);color:var(--meaning-ink);padding:1px 6px;border-radius:5px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ru{color:var(--ink-2)}
+.ex{font-style:italic;color:var(--ink)}
+.ex .ex-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-style:normal}
+.extag{font-size:.74rem;font-weight:600;letter-spacing:.01em;color:var(--ink-3);text-transform:lowercase}
+.exnext{margin-left:0;font:inherit;font-style:normal;font-size:.76rem;font-weight:600;color:var(--ink-2);background:transparent;border:1px solid var(--line);border-radius:999px;padding:1px 9px;cursor:pointer;vertical-align:1px;white-space:nowrap}
+.exnext:hover{color:var(--ink);border-color:var(--ink-3)}
+.ex mark{background:transparent;color:inherit;font-style:normal;font-weight:700;border-bottom:2px solid var(--phrase-ink)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;font-size:.78rem;color:var(--ink-3);align-items:center}
+.tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.stage{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:var(--ink-2);white-space:nowrap}
+.meter{display:inline-flex;gap:2px}
+.meter b{width:7px;height:10px;border-radius:2px;background:var(--s0)}
+.search{width:100%;font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:11px 14px}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;color:var(--ink-2);text-align:center}
+
+/* quiz */
+.quiz{display:grid;gap:16px}
+.qbar{display:flex;align-items:center;gap:12px}
+.track{flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.track span{display:block;height:100%;background:var(--leaf);transition:width .25s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;display:grid;gap:16px;min-width:0}
+.prompt{font-size:1.25rem;line-height:1.45}
+.prompt.big-phrase{font-family:var(--f-display);font-size:clamp(1.5rem,5vw,2rem);font-weight:700}
+.gap{display:inline-block;min-width:5ch;border-bottom:2px solid var(--ink-2);color:transparent}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--ink-3);background:var(--surface-2)}
+.opt .k{font-family:var(--f-mono);font-size:.75rem;color:var(--ink-3);border:1px solid var(--line);border-radius:5px;padding:0 6px;flex:none;margin-top:2px}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.answer-in{width:100%;font:inherit;font-size:1.15rem;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:12px 14px}
+.answer-in.ok{border-color:var(--good)}
+.answer-in.no{border-color:var(--bad)}
+.hint{font-family:var(--f-mono);letter-spacing:.06em;color:var(--ink-2)}
+.verdict{font-weight:700;font-family:var(--f-display);font-size:1.1rem}
+.verdict.good{color:var(--good)} .verdict.bad{color:var(--bad)} .verdict.warn{color:var(--warn)}
+.detail{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:8px}
+.kbd{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3)}
+.done-score{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1}
+/* practice streak */
+.streak{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;display:grid;gap:12px}
+.streak-head{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline}
+.streak .fire{font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1}
+.days{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
+.days i{height:22px;border-radius:5px;background:var(--surface-2);position:relative}
+.days i.on{background:var(--leaf)}
+.days i.today{box-shadow:0 0 0 2px var(--ink-3)}
+.days-cap{display:flex;justify-content:space-between;font-size:.75rem;color:var(--ink-3)}
+/* pronunciation audio */
+.ph{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;min-width:0}
+.ipa{font-family:var(--f-mono);font-size:.86rem;color:var(--ink-2);overflow-wrap:anywhere}
+.plays{display:flex;flex-wrap:wrap;gap:6px}
+.play{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px 4px 5px;font-weight:700;font-size:.86rem}
+.play:hover{border-color:var(--leaf);background:var(--leaf-soft)}
+.play .ic{width:22px;height:22px;border-radius:50%;background:var(--leaf);color:var(--leaf-ink);display:grid;place-items:center;flex:none}
+.play .ic svg{width:9px;height:9px;fill:currentColor;margin-left:1px}
+.play .eq{display:none;gap:2px;align-items:flex-end;height:10px}
+.play .eq i{width:2px;background:currentColor;height:4px;border-radius:1px;animation:eq .7s ease-in-out infinite alternate}
+.play .eq i:nth-child(2){animation-delay:.2s}.play .eq i:nth-child(3){animation-delay:.4s}
+.play.playing .eq{display:flex}.play.playing svg{display:none}
+.play.playing{border-color:var(--leaf);background:var(--leaf-soft)}
+.play.big{font-size:1.05rem;padding:10px 20px 10px 10px}
+.play.big .ic{width:32px;height:32px}.play.big .ic svg{width:13px;height:13px}
+@keyframes eq{from{height:3px}to{height:10px}}
+.tip{font-size:.9rem;color:var(--ink-2);border-left:3px solid var(--leaf-soft);padding-left:10px}
+.tip b{color:var(--ink)}
+.spoken{font-size:.8rem;color:var(--ink-3)}
+/* known words (excluded from learning) */
+.kbtn{font:inherit;font-size:.78rem;font-weight:700;color:var(--ink-2);background:transparent;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.kbtn:hover{color:var(--leaf);border-color:var(--leaf);background:var(--leaf-soft)}
+.kbtn:disabled{cursor:default;color:var(--leaf);border-color:var(--leaf-soft);background:var(--leaf-soft)}
+.tag.known{color:var(--leaf);border-color:var(--leaf)}
+.word.is-known{opacity:.62}
+.word.is-known:hover,.word.is-known:focus-within{opacity:1}
+.qtop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 32px);background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 10px 9px 18px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgb(0 0 0 / .18);z-index:10;font-size:.92rem}
+.toast button{border:0;background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px;font-weight:700}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div>
+      <div class="label">English vocabulary</div>
+      <h1>{{LEARNER_NAME}}'s Vocab Garden</h1>
+    </div>
+    <div class="sync" id="sync"><span>Connecting to your word store…</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" id="tab-study" aria-selected="true" data-tab="study">Study</button>
+    <button role="tab" id="tab-words" aria-selected="false" data-tab="words">All words</button>
+  </nav>
+
+  <main id="view-study">
+    <div class="streak" id="streak" aria-live="polite">
+      <div class="streak-head">
+        <div class="stat"><span class="fire tnum" id="sk-cur">–</span><span class="label">days in a row</span></div>
+        <div class="stat"><span class="n tnum" id="sk-best">–</span><span class="label">best streak</span></div>
+        <div class="stat"><span class="n tnum" id="sk-total">–</span><span class="label">sessions total</span></div>
+        <div class="stat"><span class="n tnum" id="sk-days">–</span><span class="label">days practised</span></div>
+      </div>
+      <div class="days" id="sk-grid" role="img"></div>
+      <div class="days-cap"><span>2 weeks ago</span><span id="sk-note"></span><span>today</span></div>
+    </div>
+    <div class="today" id="today">
+      <div class="today-head">
+        <div class="stat"><span class="big tnum" id="st-due">–</span><span class="label">due for review</span></div>
+        <div class="stat"><span class="n tnum" id="st-new">–</span><span class="label">new to learn</span></div>
+        <div class="stat"><span class="n tnum" id="st-grow">–</span><span class="label">growing</span></div>
+        <div class="stat"><span class="n tnum" id="st-done">–</span><span class="label">rooted</span></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="start" disabled>Start session</button>
+        <label class="sr" for="mode">Exercise type</label>
+        <select id="mode">
+          <option value="smart">Smart mix</option>
+          <option value="meaning">Pick the meaning</option>
+          <option value="phrase">Pick the phrase</option>
+          <option value="ru">{{NATIVE_LANG}} → English</option>
+          <option value="gap">Fill the gap (typing)</option>
+          <option value="flash">Flashcards</option>
+          <option value="listen">What did you hear? (audio)</option>
+        </select>
+        <label class="sr" for="size">Cards per session</label>
+        <select id="size">
+          <option value="10">10 cards</option>
+          <option value="20" selected>20 cards</option>
+          <option value="30">30 cards</option>
+        </select>
+        <label class="sr" for="speed">Audio speed</label>
+        <select id="speed">
+          <option value="1">Audio: normal</option>
+          <option value="0.75">Audio: slow</option>
+        </select>
+      </div>
+      <div class="fsum" id="plan"></div>
+    </div>
+
+    <div class="filters" id="filters">
+      <div class="chips" id="f-unit" aria-label="Unit"></div>
+      <div class="chips" id="f-src" aria-label="Source">
+        <button class="chip" data-src="all" aria-pressed="true">All sources</button>
+        <button class="chip" data-src="feedback" aria-pressed="false">Feedback &amp; corrections</button>
+        <button class="chip" data-src="grammar" aria-pressed="false">Grammar patterns</button>
+      </div>
+    </div>
+
+    <section>
+      <div class="sec-head"><h2>Garden by unit</h2><span class="label" id="garden-total"></span></div>
+      <div class="units" id="units"><div class="empty">Your units appear here once the word store answers.</div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2 id="latest-title">Recently added</h2><button class="btn small" id="study-latest">Study these</button></div>
+      <div class="words" id="latest"></div>
+    </section>
+  </main>
+
+  <main id="view-words" hidden>
+    <input class="search" id="q" type="search" placeholder="Search phrases, meanings, {{NATIVE_LANG}}…" autocomplete="off">
+    <div class="row" style="margin-block:10px;justify-content:space-between"><div class="fsum" id="words-count"></div><button class="chip" id="known-only" aria-pressed="false" hidden>Known only</button></div>
+    <div class="words" id="wordlist"></div>
+    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="more" hidden>Show more</button></div>
+  </main>
+
+  <main id="view-quiz" hidden>
+    <div class="quiz">
+      <div class="qbar">
+        <button class="btn small" id="quit">End</button>
+        <div class="track"><span id="qprog" style="width:0"></span></div>
+        <span class="label tnum" id="qcount"></span>
+      </div>
+      <div class="card" id="qcard"></div>
+      <div class="kbd" id="qkeys"></div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button type="button" id="toast-undo">Undo</button></div>
+
+<script>
+(() => {
+"use strict";
+const STAGES = ["Seed","Sprout","Seedling","Leafy","Blooming","Rooted"];
+const INTERVAL_DAYS = [0, 1, 3, 7, 16, 40];
+const DAY = 864e5;
+const LS = { words:"vg.words.v1", prog:"vg.progress.v1", settings:"vg.settings.v1", meta:"vg.meta.v1", log:"vg.log.v1", exbag:"vg.exbag.v1", known:"vg.known.v1" };
+
+const S = {
+  units: [],            // [{no,title,words:[...]}]
+  words: [],            // flattened, each with unitNo/unitTitle
+  byId: new Map(),
+  prog: {},             // id -> {b,due,r,w,last,intro}
+  progDocs: new Set(),  // existing progress/u<N> docs
+  meta: null,
+  log: {},              // 'YYYY-MM-DD' (local) -> sessions finished that day
+  known: {},            // word id -> {k: 1 known / 0 back to learning, t: when}; known words never enter sessions
+  knownOnly: false,
+  db: null,
+  dbState: "connecting", // connecting | live | offline
+  filter: { unit: "all", src: "all" },
+  tab: "study",
+  quiz: null,
+  wordsShown: 120,
+  audio: new Map(),     // word id -> {say, say_example, ipa, tip, clips:{voice:{phrase:{url}, example:{url}}}}
+  audioMeta: null,      // meta/audio: {voice, model, ...}
+  rate: 1,
+  exPick: new Map(),    // word id -> index of the example sentence shown (random; re-rolled for every quiz card)
+};
+
+/* ---------- helpers ---------- */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const norm = (s) => String(s || "").toLowerCase().replace(/[’‘`]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+function lev(a, b) {
+  if (a === b) return 0; const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
+const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short" }); };
+const box = (id) => (S.prog[id] && S.prog[id].b) || 0;
+const isGrammar = (w) => w.type === "grammar";
+const meterHTML = (b) => `<span class="meter" aria-hidden="true">${[1,2,3,4,5].map(i => `<b style="background:${i <= b ? `var(--s${Math.max(b,1)})` : ""}"></b>`).join("")}</span>`;
+const stageHTML = (id) => { const b = box(id); return `<span class="stage">${meterHTML(b)}${STAGES[b]}</span>`; };
+/* ---------- example sentences: example + more_examples, one shown at random ---------- */
+function exVariants(w) {
+  const vs = w.example ? [{ example: w.example, answer: w.answer || "", clip: "example", form: w.example_form || "", context: w.example_context || "" }] : [];
+  (Array.isArray(w.more_examples) ? w.more_examples : []).forEach((m, i) => { if (m && m.example) vs.push({ example: m.example, answer: m.answer || "", clip: "example" + (i + 2), form: m.form || "", context: m.context || "" }); });
+  return vs;
+}
+function curEx(w) {
+  const vs = exVariants(w); if (!vs.length) return null;
+  let i = S.exPick.get(w.id);
+  if (!(i >= 0 && i < vs.length)) { i = Math.floor(Math.random() * vs.length); S.exPick.set(w.id, i); }
+  return vs[i];
+}
+let exBags = null; // word id -> {bag: [indices still to show], last: index shown last}; per-viewer convenience
+function rollEx(w) {
+  const n = exVariants(w).length; if (!n) return null;
+  if (!exBags) exBags = lsGet(LS.exbag, {}) || {};
+  const st = exBags[w.id] && Array.isArray(exBags[w.id].bag) ? exBags[w.id] : { bag: [], last: -1 };
+  st.bag = st.bag.filter((i) => i >= 0 && i < n);
+  if (!st.bag.length) st.bag = [...Array(n).keys()];
+  const pool = st.bag.length > 1 ? st.bag.filter((i) => i !== st.last) : st.bag;
+  const i = pool[Math.floor(Math.random() * pool.length)];
+  st.bag.splice(st.bag.indexOf(i), 1);
+  st.last = i; exBags[w.id] = st; lsSet(LS.exbag, exBags);
+  S.exPick.set(w.id, i); return exVariants(w)[i];
+}
+const canGapEx = (x) => !!(x && x.answer && x.example.includes(x.answer));
+function gapEx(w) { // the shown sentence if it can be a gap-fill, else the first one that can
+  const vs = exVariants(w); const c = S.exPick.get(w.id);
+  const i = canGapEx(vs[c]) ? c : vs.findIndex(canGapEx);
+  if (i < 0) return null;
+  S.exPick.set(w.id, i); return vs[i];
+}
+function markEx(x) {
+  const ex = x.example, a = x.answer; const i = a ? ex.indexOf(a) : -1;
+  if (i < 0) return esc(ex);
+  return esc(ex.slice(0, i)) + "<mark>" + esc(a) + "</mark>" + esc(ex.slice(i + a.length));
+}
+function exampleHTML(w) { const x = curEx(w); return x ? markEx(x) : ""; }
+function exBlock(w) {
+  const x = curEx(w); if (!x) return "";
+  const n = exVariants(w).length;
+  const tag = [x.form, x.context].filter(Boolean).join(" · ");
+  const btn = n > 1 ? `<button type="button" class="exnext" data-exnext="${esc(w.id)}" title="Show another example" aria-label="Show another example sentence">↻ ${S.exPick.get(w.id) + 1}/${n}</button>` : "";
+  return `<div class="ex" data-ex="${esc(w.id)}"><div>${markEx(x)}</div>${tag || btn ? `<div class="ex-meta">${tag ? `<span class="extag" title="Grammar form · situation">${esc(tag)}</span>` : ""}${btn}</div>` : ""}</div>`;
+}
+function nextEx(id) {
+  const w = S.byId.get(id); if (!w) return;
+  const n = exVariants(w).length; if (n < 2) return;
+  S.exPick.set(id, ((S.exPick.get(id) || 0) + 1) % n);
+  const sel = (attr) => `[${attr}="${CSS.escape(id)}"]`;
+  document.querySelectorAll(sel("data-ex")).forEach((el) => { el.outerHTML = exBlock(w); });
+  document.querySelectorAll(sel("data-plays")).forEach((el) => { el.outerHTML = playsHTML(w) || "<span></span>"; });
+}
+
+/* ---------- pronunciation audio ---------- */
+const PLAY_SVG = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 0.6 9.2 5 1 9.4z"/></svg>';
+const player = new Audio(); player.preload = "auto";
+let playingBtn = null;
+const stopUI = () => { if (playingBtn) playingBtn.classList.remove("playing"); playingBtn = null; };
+player.addEventListener("ended", stopUI); player.addEventListener("pause", stopUI);
+const voice = () => (S.audioMeta && S.audioMeta.voice) || "{{VOICE}}";
+function clipUrl(id, clip) {
+  const a = S.audio.get(id); if (!a || !a.clips) return null;
+  const v = a.clips[voice()] || Object.values(a.clips)[0] || {};
+  return v[clip] && v[clip].url ? v[clip].url : null;
+}
+const hasAudio = (id) => !!clipUrl(id, "phrase");
+async function playClip(id, clip, btn) {
+  const url = clipUrl(id, clip); if (!url) return;
+  if (btn && playingBtn === btn && !player.paused) { player.pause(); return; }
+  stopUI();
+  player.src = url; player.playbackRate = S.rate; player.preservesPitch = true;
+  if (btn) { btn.classList.add("playing"); playingBtn = btn; }
+  try { await player.play(); player.playbackRate = S.rate; } catch { stopUI(); }
+}
+function playBtn(id, clip, label, cls = "") {
+  return clipUrl(id, clip) ? `<button type="button" class="play ${cls}" data-play="${esc(id)}" data-clip="${clip}" aria-label="Play ${clip === "phrase" ? "the phrase" : "the example sentence"}"><span class="ic">${PLAY_SVG}<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>${esc(label)}</button>` : "";
+}
+function playsHTML(w) {
+  const x = curEx(w);
+  const b = playBtn(w.id, "phrase", "Phrase") + (x ? playBtn(w.id, x.clip, "Example") : "");
+  return b ? `<div class="plays" data-plays="${esc(w.id)}">${b}</div>` : "";
+}
+const ipaHTML = (w) => { const a = S.audio.get(w.id); return a && a.ipa ? `<span class="ipa" title="American pronunciation (IPA)">${esc(a.ipa)}</span>` : ""; };
+function soundNotesHTML(w) {
+  const a = S.audio.get(w.id); if (!a) return "";
+  const squash = (t) => String(t || "").toLowerCase().replace(/[^a-z]/g, "");
+  const spoken = a.say && squash(a.say) !== squash(w.phrase) ? `<div class="spoken">Read aloud as “${esc(a.say)}”</div>` : "";
+  return (a.tip ? `<div class="tip"><b>Sound tip.</b> ${esc(a.tip)}</div>` : "") + spoken;
+}
+
+/* ---------- data ---------- */
+function setUnits(units) {
+  S.units = units.slice().sort((a, b) => (a.no || 0) - (b.no || 0));
+  S.words = []; S.byId = new Map();
+  for (const u of S.units) for (const w of (u.words || [])) {
+    if (!w || !w.id || !w.phrase || S.byId.has(w.id)) continue;
+    const x = Object.assign({}, w, { unitNo: u.no, unitTitle: u.title });
+    S.words.push(x); S.byId.set(x.id, x);
+  }
+}
+function matchesFilter(w, f = S.filter) {
+  if (f.unit !== "all" && String(w.unitNo) !== String(f.unit)) return false;
+  if (f.src === "feedback") return w.kind === "feedback";
+  if (f.src === "grammar") return isGrammar(w);
+  if (f.src === "latest") return latestIds().has(w.id);
+  return true;
+}
+const isKnown = (id) => !!(S.known[id] && S.known[id].k);
+const pool = () => S.words.filter((w) => !isKnown(w.id) && matchesFilter(w));   // what you study
+const browsePool = () => S.words.filter((w) => matchesFilter(w));               // what you can see
+function latestIds() {
+  const added = (S.meta && Array.isArray(S.meta.added_ids) && S.meta.added_ids.length) ? S.meta.added_ids : null;
+  if (added) return new Set(added.filter((id) => S.byId.has(id)));
+  // fall back to the words first seen in the most recent ~9 days
+  const dates = S.words.map((w) => w.first_seen).filter(Boolean).sort();
+  if (!dates.length) return new Set();
+  const cutoff = new Date(new Date(dates[dates.length - 1]).getTime() - 9 * DAY).toISOString().slice(0, 10);
+  return new Set(S.words.filter((w) => (w.first_seen || "") >= cutoff).map((w) => w.id));
+}
+function counts(list) {
+  const now = Date.now(); let due = 0, fresh = 0, grow = 0, done = 0;
+  for (const w of list) { const p = S.prog[w.id]; if (!p || !p.b) { fresh++; continue; } if (p.due <= now) due++; if (p.b >= 5) done++; else grow++; }
+  return { due, fresh, grow, done };
+}
+
+/* ---------- progress persistence ---------- */
+const writeChains = new Map();
+function saveProgress(w, rec) {
+  S.prog[w.id] = rec; lsSet(LS.prog, S.prog);
+  if (!S.db) return;
+  const docId = "u" + w.unitNo;
+  const run = async () => {
+    const ref = S.db.doc("progress/" + docId);
+    try {
+      if (S.progDocs.has(docId)) await ref.update({ cards: { [w.id]: rec } });
+      else { const snap = await ref.get(); if (snap.exists) { S.progDocs.add(docId); await ref.update({ cards: { [w.id]: rec } }); } else { await ref.set({ unit: w.unitNo, cards: { [w.id]: rec } }); S.progDocs.add(docId); } }
+    } catch (e) {
+      if (e && e.code === "unavailable") { await new Promise((r) => setTimeout(r, 600 + Math.random() * 600)); try { await ref.update({ cards: { [w.id]: rec } }); } catch {} }
+    }
+  };
+  const prev = writeChains.get(docId) || Promise.resolve();
+  const next = prev.then(run, run); writeChains.set(docId, next);
+}
+function grade(w, correct) {
+  const now = Date.now(); const p = Object.assign({ b: 0, due: 0, r: 0, w: 0, intro: now }, S.prog[w.id] || {});
+  const before = p.b;
+  if (correct) { p.b = Math.min(5, p.b + 1); p.r++; p.due = now + INTERVAL_DAYS[p.b] * DAY - 2 * 36e5; }
+  else { p.b = 1; p.w++; p.due = now + 10 * 6e4; }
+  p.last = now; if (!p.intro) p.intro = now;
+  saveProgress(w, { b: p.b, due: p.due, r: p.r, w: p.w, last: p.last, intro: p.intro });
+  return { before, after: p.b };
+}
+
+/* ---------- known words ---------- */
+let knownDoc = false;
+function saveKnown(id) {
+  lsSet(LS.known, S.known);
+  if (!S.db) return;
+  const ref = S.db.doc("stats/known"); const data = { words: { [id]: S.known[id] } };
+  const run = async () => {
+    try {
+      if (knownDoc) await ref.update(data);
+      else { const snap = await ref.get(); if (snap.exists) { knownDoc = true; await ref.update(data); } else { await ref.set(data); knownDoc = true; } }
+    } catch {}
+  };
+  const prev = writeChains.get("known") || Promise.resolve(); writeChains.set("known", prev.then(run, run));
+}
+let toastTimer = null;
+function toast(msg, undoId) {
+  $("toast-msg").textContent = msg; $("toast-undo").hidden = !undoId; $("toast-undo").dataset.undo = undoId || "";
+  $("toast").hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, 6000);
+}
+function setKnown(id, k, quiet) {
+  const w = S.byId.get(id); if (!w) return;
+  S.known[id] = { k: k ? 1 : 0, t: Date.now() }; saveKnown(id);
+  if (!quiet) toast(k ? `“${w.phrase}” marked as known — it won't come up in sessions.` : `“${w.phrase}” is back in your learning list.`, k ? id : "");
+  if (!S.quiz) { renderAll(); if (S.tab === "words") renderWords(); }
+}
+function knowInQuiz() { // skip the current card for good and drop its repeats from this session
+  const q = S.quiz; const it = curItem(); if (!q || !it || q.state === "done") return;
+  const id = it.id; setKnown(id, true);
+  q.queue = q.queue.filter((x, j) => j <= q.i || x.id !== id);
+  q.missed.delete(id); q.known = (q.known || 0) + 1;
+  if (q.state === "ask") { q.queue.splice(q.i, 1); renderCard(); }
+  else { const b = $("knowit"); if (b) { b.disabled = true; b.textContent = "✓ Marked known"; } const n = $("next"); if (n) n.textContent = q.i + 1 >= q.queue.length ? "Finish" : "Next"; }
+}
+
+/* ---------- practice log & streaks ---------- */
+const dayKey = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const keyDate = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+const shiftKey = (k, n) => { const d = keyDate(k); d.setDate(d.getDate() + n); return dayKey(d); };
+function practiceDays() { // explicit session log + days inferred from card history (before the log existed)
+  const d = Object.assign({}, S.log);
+  for (const rec of Object.values(S.prog)) for (const t of [rec && rec.last, rec && rec.intro]) if (t) { const k = dayKey(t); if (!d[k]) d[k] = 1; }
+  return d;
+}
+function streaks() {
+  const d = practiceDays(); const keys = Object.keys(d).filter((k) => d[k] > 0).sort();
+  const today = dayKey(Date.now());
+  let cur = 0, k = d[today] ? today : shiftKey(today, -1);
+  while (d[k]) { cur++; k = shiftKey(k, -1); }
+  let best = 0, run = 0, prev = null;
+  for (const x of keys) { run = prev && shiftKey(prev, 1) === x ? run + 1 : 1; best = Math.max(best, run); prev = x; }
+  const total = keys.reduce((s, x) => s + d[x], 0);
+  return { d, cur, best, total, days: keys.length, today: !!d[today] };
+}
+function renderStreak() {
+  const s = streaks(); const today = dayKey(Date.now());
+  $("sk-cur").textContent = (s.cur ? "🔥 " : "") + s.cur; $("sk-best").textContent = s.best; $("sk-total").textContent = s.total; $("sk-days").textContent = s.days;
+  const cells = []; for (let i = 13; i >= 0; i--) { const k = shiftKey(today, -i); const n = s.d[k] || 0; cells.push(`<i class="${n ? "on" : ""}${i === 0 ? " today" : ""}" title="${esc(fmtDate(keyDate(k).toISOString()))}: ${n ? n + " session" + (n > 1 ? "s" : "") : "no practice"}"></i>`); }
+  $("sk-grid").innerHTML = cells.join("");
+  $("sk-grid").setAttribute("aria-label", `Practice over the last 14 days: ${cells.filter((c) => c.includes('"on')).length} of 14 days`);
+  $("sk-note").textContent = s.today ? "done for today ✓" : s.cur ? "practise today to keep it going" : "";
+}
+function saveLog(k) {
+  lsSet(LS.log, S.log);
+  if (!S.db) return;
+  const ref = S.db.doc("stats/practice"); const data = { days: { [k]: S.log[k] } };
+  const run = () => ref.update(data).catch(() => ref.set(data)).catch(() => {});
+  const prev = writeChains.get("stats") || Promise.resolve(); writeChains.set("stats", prev.then(run, run));
+}
+function recordSession() {
+  const q = S.quiz; if (!q || q.logged || !q.answered) return;
+  q.logged = true; const k = dayKey(Date.now());
+  S.log[k] = (S.log[k] || 0) + 1; saveLog(k);
+}
+
+/* ---------- rendering: study ---------- */
+function renderSync() {
+  const el = $("sync"); const m = S.meta;
+  const live = S.dbState === "live", off = S.dbState === "offline";
+  let lines = [];
+  if (m && m.last_run) lines.push(`<span>Words last added <strong>${esc(fmtDate(m.last_run))}</strong></span>`);
+  if (m && typeof m.added_count === "number" && m.kind !== "initial import" && m.kind !== "setup") lines.push(`<span>${m.added_count ? `+${m.added_count} new words last time` : "No new words last time"}</span>`);
+  if (off) lines.push(`<span>${S.words.length ? "Offline copy — progress saves on this device" : "Word store unavailable here"}</span>`);
+  else if (!live) lines.push(`<span>Connecting to your word store…</span>`);
+  el.innerHTML = lines.join("");
+}
+function renderUnitChips() {
+  const el = $("f-unit");
+  const chips = [`<button class="chip" data-unit="all" aria-pressed="${S.filter.unit === "all"}">All units</button>`]
+    .concat(S.units.map((u) => `<button class="chip" data-unit="${u.no}" aria-pressed="${String(S.filter.unit) === String(u.no)}" title="${esc(u.title)}">Unit ${u.no}</button>`));
+  el.innerHTML = chips.join("");
+  for (const b of $("f-src").querySelectorAll(".chip")) b.setAttribute("aria-pressed", String(b.dataset.src === S.filter.src));
+}
+function renderToday() {
+  const list = pool(); const c = counts(list);
+  $("st-due").textContent = c.due; $("st-new").textContent = c.fresh; $("st-grow").textContent = c.grow; $("st-done").textContent = c.done;
+  const size = +$("size").value; const plan = buildPlan(list, size, $("mode").value, true);
+  const u = S.filter.unit === "all" ? "all units" : `Unit ${S.filter.unit}: ${(S.units.find((x) => String(x.no) === String(S.filter.unit)) || {}).title || ""}`;
+  const srcLabel = { all: "every source", feedback: "feedback & corrections", grammar: "grammar patterns", latest: "the latest words" }[S.filter.src] || "every source";
+  const start = $("start");
+  if (!S.words.length) { start.disabled = true; start.textContent = "Start session"; $("plan").textContent = ""; return; }
+  start.disabled = plan.items.length === 0;
+  start.textContent = plan.items.length ? `Start session · ${plan.items.length}` : "Nothing to study";
+  const parts = [];
+  if (plan.nDue) parts.push(`${plan.nDue} review${plan.nDue > 1 ? "s" : ""}`);
+  if (plan.nNew) parts.push(`${plan.nNew} new`);
+  if (plan.nExtra) parts.push(`${plan.nExtra} extra practice`);
+  const nKnown = browsePool().length - list.length;
+  $("plan").textContent = `${list.length} words from ${u}, ${srcLabel}.` + (parts.length ? ` This session: ${parts.join(" + ")}.` : "") + (nKnown ? ` ${nKnown} marked as known are skipped.` : "");
+}
+function renderUnits() {
+  const el = $("units");
+  if (!S.units.length) { el.innerHTML = `<div class="empty">${S.dbState === "offline" ? "The word store isn't reachable from this view. Open the page on claude.ai while signed in." : "Your units appear here once the word store answers."}</div>`; $("legend").innerHTML = ""; return; }
+  const srcF = Object.assign({}, S.filter, { unit: "all" });
+  el.innerHTML = S.units.map((u) => {
+    const all = S.words.filter((w) => w.unitNo === u.no && matchesFilter(w, srcF));
+    const ws = all.filter((w) => !isKnown(w.id)); const nk = all.length - ws.length;
+    const dist = [0,0,0,0,0,0]; ws.forEach((w) => dist[box(w.id)]++);
+    const c = counts(ws);
+    const bar = ws.length ? dist.map((n, i) => n ? `<span style="width:${(n / ws.length * 100).toFixed(2)}%;background:var(--s${i})" title="${STAGES[i]}: ${n}"></span>` : "").join("") : "";
+    return `<div class="unit"><div class="name"><small>UNIT ${u.no}</small>${esc(u.title)}<div class="meta tnum">${ws.length} words · ${c.due} due · ${dist[5]} rooted${nk ? ` · ${nk} known` : ""}</div></div>
+      <button class="btn small" data-study-unit="${u.no}" ${ws.length ? "" : "disabled"}>Study</button><div class="bar" role="img" aria-label="Growth stages for unit ${u.no}">${bar}</div></div>`;
+  }).join("");
+  const tk = S.words.filter((w) => isKnown(w.id)).length;
+  $("garden-total").textContent = `${S.words.length - tk} words` + (tk ? ` · ${tk} known` : "");
+  $("legend").innerHTML = STAGES.map((s, i) => `<span><i style="background:var(--s${i})"></i>${s}${i === 0 ? " (new)" : i === 5 ? " (mastered)" : ""}</span>`).join("");
+}
+function wordHTML(w, opts = {}) {
+  const k = isKnown(w.id);
+  return `<article class="word${k ? " is-known" : ""}">
+    <div class="word-top"><span class="ph"><span class="phrase">${esc(w.phrase)}</span>${ipaHTML(w)}</span>${k ? `<span class="tag known">✓ Known</span>` : stageHTML(w.id)}</div>
+    ${playsHTML(w)}
+    <div><span class="meaning">${esc(w.definition)}</span></div>
+    ${w.ru ? `<div class="ru">${esc(w.ru)}</div>` : ""}
+    ${opts.full ? exBlock(w) : ""}
+    ${opts.full ? soundNotesHTML(w) : ""}
+    <div class="tags"><span class="tag">Unit ${w.unitNo}</span>${w.kind === "feedback" ? `<span class="tag">Feedback</span>` : ""}${w.type ? `<span class="tag">${esc(w.type)}</span>` : ""}
+      ${(w.lessons || []).length ? `<span>${esc(w.lessons.join(", "))}</span>` : ""}
+      ${opts.noKnow ? "" : k ? `<button type="button" class="kbtn" data-unknow="${esc(w.id)}">Back to learning</button>` : `<button type="button" class="kbtn" data-know="${esc(w.id)}" title="Exclude from sessions">I know this</button>`}</div>
+  </article>`;
+}
+function renderLatest() {
+  const ids = latestIds(); const ws = S.words.filter((w) => ids.has(w.id)).sort((a, b) => (b.first_seen || "").localeCompare(a.first_seen || ""));
+  const fromRun = S.meta && Array.isArray(S.meta.added_ids) && S.meta.added_ids.length;
+  $("latest-title").textContent = fromRun ? `Added last time (${ws.length})` : `Recently added (${ws.length})`;
+  $("study-latest").hidden = !ws.some((w) => !isKnown(w.id));
+  $("latest").innerHTML = ws.length ? ws.slice(0, 12).map((w) => wordHTML(w)).join("") + (ws.length > 12 ? `<div class="fsum">+ ${ws.length - 12} more in “All words”.</div>` : "") : `<div class="empty">Send new words to Claude in your project chat — they show up here.</div>`;
+}
+function renderWords() {
+  const raw = $("q").value.trim().toLowerCase(); const q = norm(raw);
+  let ws = browsePool();
+  const nKnown = ws.filter((w) => isKnown(w.id)).length;
+  const ko = $("known-only"); ko.hidden = !nKnown; if (!nKnown) S.knownOnly = false;
+  ko.textContent = `Known only (${nKnown})`; ko.setAttribute("aria-pressed", String(S.knownOnly));
+  if (S.knownOnly) ws = ws.filter((w) => isKnown(w.id));
+  if (raw) ws = ws.filter((w) => (q && norm([w.phrase, w.definition].concat(exVariants(w).map((x) => x.example)).join(" ")).includes(q)) || [w.phrase, w.definition, w.ru].join(" ").toLowerCase().includes(raw));
+  ws = ws.slice().sort((a, b) => a.unitNo - b.unitNo || (a.first_seen || "").localeCompare(b.first_seen || ""));
+  $("words-count").textContent = `${ws.length} of ${S.words.length} words` + (S.filter.unit !== "all" || S.filter.src !== "all" ? " (filters from Study apply)" : "");
+  $("wordlist").innerHTML = ws.length ? ws.slice(0, S.wordsShown).map((w) => wordHTML(w, { full: true })).join("") : `<div class="empty">${S.words.length ? "No words match." : "Words load from your store…"}</div>`;
+  $("more").hidden = ws.length <= S.wordsShown;
+}
+function renderAll() { renderStreak(); renderSync(); renderUnitChips(); renderToday(); renderUnits(); renderLatest(); if (S.tab === "words") renderWords(); }
+
+/* ---------- session planning ---------- */
+function exerciseFor(w, mode) {
+  const canGap = exVariants(w).some(canGapEx);
+  if (mode === "gap") return canGap ? "gap" : "phrase";
+  if (mode === "ru") return w.ru ? "ru" : "phrase";
+  if (mode === "listen") return hasAudio(w.id) ? "listen" : "phrase";
+  if (mode !== "smart") return mode;
+  const b = box(w.id);
+  if (b === 0) return "meaning";
+  if (b === 1) return "phrase";
+  if (b === 2) return w.ru ? "ru" : "phrase";
+  if (hasAudio(w.id) && Math.random() < 0.35) return "listen"; // words you already know: sometimes by ear
+  return canGap ? "gap" : "flash";
+}
+function buildPlan(list, size, mode, dry) {
+  const now = Date.now(); const newCap = Math.max(4, Math.round(size * 0.4));
+  const due = list.filter((w) => S.prog[w.id] && S.prog[w.id].b && S.prog[w.id].due <= now).sort((a, b) => S.prog[a.id].due - S.prog[b.id].due);
+  const fresh = list.filter((w) => !box(w.id)).sort((a, b) => (b.first_seen || "").localeCompare(a.first_seen || "") || a.phrase.localeCompare(b.phrase));
+  let items = due.slice(0, size); const nDue = items.length;
+  const room = Math.min(size - items.length, Math.max(newCap, size - items.length > 0 && !due.length ? size : newCap));
+  const newPick = fresh.slice(0, Math.max(0, Math.min(room, size - items.length)));
+  items = items.concat(newPick);
+  let nExtra = 0;
+  if (!items.length) { // everything is scheduled for later: offer extra practice on the weakest words
+    const rest = list.filter((w) => box(w.id)).sort((a, b) => box(a.id) - box(b.id) || (S.prog[a.id].due - S.prog[b.id].due));
+    items = rest.slice(0, size); nExtra = items.length;
+  }
+  if (dry) return { items, nDue, nNew: newPick.length, nExtra };
+  const order = shuffle(items.slice(0, nDue)).concat(items.slice(nDue));
+  return order.map((w) => ({ id: w.id, ex: exerciseFor(w, mode), tries: 0 }));
+}
+
+/* ---------- quiz ---------- */
+function startSession(list, label) {
+  const mode = $("mode").value; const size = +$("size").value;
+  const queue = buildPlan(list, size, mode, false);
+  if (!queue.length) return;
+  S.quiz = { queue, i: 0, mode, right: 0, wrong: 0, answered: 0, missed: new Map(), state: "ask", label, total: queue.length };
+  show("quiz"); renderCard();
+}
+function startWith(words) { // explicit list (e.g. review missed)
+  const mode = $("mode").value;
+  const queue = shuffle(words).map((w) => ({ id: w.id, ex: exerciseFor(w, mode), tries: 0 }));
+  S.quiz = { queue, i: 0, mode, right: 0, wrong: 0, answered: 0, missed: new Map(), state: "ask", total: queue.length };
+  show("quiz"); renderCard();
+}
+function distractors(w, field, n = 3) {
+  const same = (x) => x.id !== w.id && x[field] && norm(x[field]) !== norm(w[field]);
+  const kind = (x) => isGrammar(x) === isGrammar(w);
+  let a = shuffle(S.words.filter((x) => same(x) && kind(x) && x.unitNo === w.unitNo));
+  let b = shuffle(S.words.filter((x) => same(x) && kind(x) && x.unitNo !== w.unitNo));
+  let c = shuffle(S.words.filter((x) => same(x) && !kind(x)));
+  const out = []; const seen = new Set([norm(w[field])]);
+  for (const x of a.slice(0, 2).concat(b, a.slice(2), c)) { const k = norm(x[field]); if (seen.has(k)) continue; seen.add(k); out.push(x); if (out.length >= n) break; }
+  return out;
+}
+function curItem() { const q = S.quiz; return q && q.queue[q.i]; }
+function renderCard() {
+  const q = S.quiz; const it = curItem();
+  if (!it) return renderDone();
+  const w = S.byId.get(it.id); if (!w) { q.i++; return renderCard(); }
+  rollEx(w); // a fresh random example sentence for every card
+  q.state = "ask"; q.cur = { w, ex: it.ex };
+  $("qprog").style.width = (q.i / q.queue.length * 100) + "%";
+  $("qcount").textContent = `${q.i + 1} / ${q.queue.length}`;
+  const card = $("qcard"); let html = ""; const tag = `<div class="qtop"><div class="tags"><span class="tag">Unit ${w.unitNo}</span>${stageHTML(w.id)}</div><button type="button" class="kbtn" id="knowit" title="Never show this word again (K)">✓ I know this</button></div>`;
+  if (it.ex === "listen" && !hasAudio(w.id)) it.ex = q.cur.ex = "phrase"; // clip missing: fall back
+  if (it.ex === "meaning" || it.ex === "phrase" || it.ex === "ru" || it.ex === "listen") {
+    const field = it.ex === "meaning" ? "definition" : "phrase";
+    const opts = shuffle([w].concat(distractors(w, field)));
+    q.cur.opts = opts.map((x) => x.id); q.cur.field = field;
+    const prompt = it.ex === "meaning" ? `<div class="label">What does it mean?</div><div class="prompt big-phrase"><span class="phrase">${esc(w.phrase)}</span></div>${playBtn(w.id, "phrase", "Listen")}`
+      : it.ex === "phrase" ? `<div class="label">Which phrase fits this meaning?</div><div class="prompt"><span class="meaning">${esc(w.definition)}</span></div>`
+      : it.ex === "listen" ? `<div class="label">What did you hear?</div><div class="row">${playBtn(w.id, "phrase", "Play again", "big")}</div>`
+      : `<div class="label">How do you say it in English?</div><div class="prompt">${esc(w.ru)}</div>`;
+    html = `${tag}${prompt}<div class="opts">${opts.map((x, i) => `<button class="opt" data-opt="${i}"><span class="k">${i + 1}</span><span>${esc(x[field])}</span></button>`).join("")}</div><div id="fb"></div>`;
+    $("qkeys").textContent = it.ex === "listen" ? "Keys: R to replay · 1–4 to answer · Enter for next · K = I know this" : "Keys: 1–4 to answer · Enter for next · K = I know this";
+  } else if (it.ex === "gap") {
+    const g = q.cur.gap = gapEx(w); const i = g.example.indexOf(g.answer);
+    const sent = esc(g.example.slice(0, i)) + `<span class="gap" aria-label="blank">${"_".repeat(Math.max(5, g.answer.length))}</span>` + esc(g.example.slice(i + g.answer.length));
+    html = `${tag}<div class="label">Fill the gap</div><div class="prompt">${sent}</div><div><span class="meaning">${esc(w.definition)}</span></div>
+      <form id="gapform" autocomplete="off"><input class="answer-in" id="gapin" aria-label="Your answer" spellcheck="false" autocapitalize="off" autocomplete="off"></form>
+      <div class="row"><button class="btn small" id="hintbtn" type="button">Hint</button><button class="btn small" id="giveup" type="button">Show answer</button><span class="hint" id="hint"></span></div><div id="fb"></div>`;
+    $("qkeys").textContent = "Keys: Enter to check · Enter again for next";
+  } else { // flash
+    html = `${tag}<div class="label">Do you know it?</div><div class="prompt big-phrase"><span class="phrase">${esc(w.phrase)}</span></div>
+      <div class="row" id="flashrow"><button class="btn primary" id="reveal">Show meaning</button></div><div id="fb"></div>`;
+    $("qkeys").textContent = "Keys: Space to reveal · 1 = Again · 2 = Got it · K = I know this";
+  }
+  card.innerHTML = html;
+  const inp = $("gapin"); if (inp) setTimeout(() => inp.focus(), 30);
+  if (it.ex === "listen") setTimeout(() => { const b = card.querySelector(".play.big"); if (b) playClip(w.id, "phrase", b); }, 60);
+}
+function detailHTML(w, change, correct) {
+  const moved = !change ? "" : !correct ? `${STAGES[change.after]} · comes back soon` : change.after > change.before ? `${STAGES[change.before]} → ${STAGES[change.after]}` : STAGES[change.after];
+  return `<div class="detail"><div class="ph"><span class="phrase">${esc(w.phrase)}</span>${ipaHTML(w)}</div>${playsHTML(w)}<div><span class="meaning">${esc(w.definition)}</span></div>
+    ${w.ru ? `<div class="ru">${esc(w.ru)}</div>` : ""}${exBlock(w)}${soundNotesHTML(w)}
+    <div class="tags">${moved ? `<span class="stage">${meterHTML(change.after)}${esc(moved)}</span>` : ""}${(w.lessons || []).length ? `<span>Lessons ${esc(w.lessons.join(", "))}</span>` : ""}</div>
+    <div class="row"><button class="btn primary" id="next">${S.quiz.i + 1 >= S.quiz.queue.length ? "Finish" : "Next"}</button></div></div>`;
+}
+function settle(correct, verdictHTML) {
+  const q = S.quiz; const w = q.cur.w; const it = curItem();
+  q.state = "shown"; q.answered++;
+  let change = null;
+  if (it.tries === 0) { change = grade(w, correct); correct ? q.right++ : q.wrong++; }
+  if (!correct) {
+    q.missed.set(w.id, w);
+    if (it.tries < 1) { const pos = Math.min(q.queue.length, q.i + 4); q.queue.splice(pos, 0, { id: w.id, ex: it.ex === "gap" ? "phrase" : it.ex, tries: it.tries + 1 }); }
+  }
+  $("fb").innerHTML = verdictHTML + detailHTML(w, change, correct);
+  setTimeout(() => { const n = $("next"); if (n) n.focus(); }, 20);
+}
+function answerOpt(i) {
+  const q = S.quiz; if (!q || q.state !== "ask" || !q.cur.opts) return;
+  const chosen = q.cur.opts[i]; if (chosen == null) return;
+  const ok = chosen === q.cur.w.id;
+  document.querySelectorAll("#qcard .opt").forEach((b, j) => { b.disabled = true; if (q.cur.opts[j] === q.cur.w.id) b.classList.add("right"); else if (j === i) b.classList.add("wrong"); });
+  settle(ok, ok ? `<div class="verdict good">Correct</div>` : `<div class="verdict bad">Not quite. The answer is highlighted.</div>`);
+}
+function checkGap(giveUp) {
+  const q = S.quiz; if (!q || q.state !== "ask") return;
+  const w = q.cur.w; const ans = (q.cur.gap && q.cur.gap.answer) || w.answer; const inp = $("gapin"); const got = norm(inp.value); const want = norm(ans);
+  if (!giveUp && !got) { inp.focus(); return; }
+  const d = lev(got, want);
+  const tol = want.length <= 6 ? 0 : want.length <= 14 ? 1 : 2;
+  const exact = got === want;
+  const close = !exact && d <= tol;
+  inp.disabled = true; inp.classList.add(exact || close ? "ok" : "no");
+  $("hintbtn").disabled = true; $("giveup").disabled = true;
+  if (giveUp) return settle(false, `<div class="verdict bad">The answer: <strong>${esc(ans)}</strong></div>`);
+  settle(exact || close, exact ? `<div class="verdict good">Correct</div>` : close ? `<div class="verdict warn">Almost — counted as right. Exact form: <strong>${esc(ans)}</strong></div>` : `<div class="verdict bad">Not quite. The answer: <strong>${esc(ans)}</strong></div>`);
+}
+function showHint() {
+  const w = S.quiz.cur.w; const h = $("hint"); const ans = (S.quiz.cur.gap && S.quiz.cur.gap.answer) || w.answer;
+  const mask = ans.split(" ").map((t) => t[0] + t.slice(1).replace(/[A-Za-z]/g, "_")).join(" ");
+  h.textContent = h.textContent ? `${mask} · ${w.ru || ""}` : mask;
+}
+function revealFlash() {
+  const q = S.quiz; if (!q || q.state !== "ask" || q.cur.ex !== "flash" || q.cur.revealed) return;
+  q.cur.revealed = true; const w = q.cur.w;
+  $("flashrow").innerHTML = `<button class="btn" id="again">Again</button><button class="btn primary" id="gotit">Got it</button>`;
+  $("fb").innerHTML = `<div class="detail" style="border-top:0;padding-top:0">${ipaHTML(w) ? `<div>${ipaHTML(w)}</div>` : ""}${playsHTML(w)}<div><span class="meaning">${esc(w.definition)}</span></div>${w.ru ? `<div class="ru">${esc(w.ru)}</div>` : ""}${exBlock(w)}${soundNotesHTML(w)}</div>`;
+  setTimeout(() => $("gotit").focus(), 20);
+}
+function flashGrade(ok) {
+  const q = S.quiz; if (!q || q.state !== "ask" || !q.cur.revealed) return;
+  $("flashrow").innerHTML = "";
+  settle(ok, ok ? `<div class="verdict good">Nice</div>` : `<div class="verdict bad">It'll come back in a few cards.</div>`);
+}
+function nextCard() { const q = S.quiz; if (!q || q.state !== "shown") return; q.i++; renderCard(); }
+function renderDone() {
+  const q = S.quiz; q.state = "done"; recordSession(); const sk = streaks();
+  $("qprog").style.width = "100%"; $("qcount").textContent = "Done";
+  const total = q.right + q.wrong; const missed = [...q.missed.values()];
+  $("qcard").innerHTML = `<div class="label">Session complete</div><div class="done-score tnum">${q.right}<span class="muted" style="font-size:1.4rem"> / ${total}</span></div>
+    <p class="muted" style="margin:0">${q.wrong ? `${q.wrong} word${q.wrong > 1 ? "s" : ""} went back to Sprout and will return tomorrow.` : "Everything you saw moved up a stage."}</p>
+    ${q.known ? `<p class="muted" style="margin:0">${q.known} word${q.known > 1 ? "s" : ""} marked as known and taken out of your learning list.</p>` : ""}
+    <p style="margin:0"><strong>🔥 ${sk.cur}-day streak</strong> <span class="muted">· session #${sk.total} overall</span></p>
+    ${missed.length ? `<div class="words">${missed.map((w) => wordHTML(w)).join("")}</div>` : ""}
+    <div class="row">${missed.length ? `<button class="btn" id="redo">Practise missed again</button>` : ""}<button class="btn primary" id="home">Back to the garden</button></div>`;
+  $("qkeys").textContent = "";
+}
+function show(view) {
+  S.tab = view === "quiz" ? S.tab : view;
+  $("view-study").hidden = view !== "study"; $("view-words").hidden = view !== "words"; $("view-quiz").hidden = view !== "quiz";
+  $("tabs").hidden = view === "quiz"; document.querySelector(".top").hidden = view === "quiz";
+  for (const b of $("tabs").querySelectorAll("button")) b.setAttribute("aria-selected", String(b.dataset.tab === view));
+  if (view === "words") renderWords();
+  if (view !== "quiz") { if (S.quiz && S.quiz.answered >= 3) recordSession(); S.quiz = null; renderAll(); }
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.tab) return show(t.dataset.tab);
+  if (t.dataset.unit) { S.filter.unit = t.dataset.unit; saveSettings(); return renderAll(); }
+  if (t.dataset.src) { S.filter.src = t.dataset.src; saveSettings(); return renderAll(); }
+  if (t.dataset.studyUnit) { S.filter.unit = t.dataset.studyUnit; saveSettings(); renderAll(); return startSession(pool()); }
+  if (t.dataset.opt != null) return answerOpt(+t.dataset.opt);
+  if (t.dataset.play) return playClip(t.dataset.play, t.dataset.clip, t);
+  if (t.dataset.exnext) return nextEx(t.dataset.exnext);
+  if (t.dataset.know) return setKnown(t.dataset.know, true);
+  if (t.dataset.unknow) return setKnown(t.dataset.unknow, false);
+  if (t.dataset.undo) { $("toast").hidden = true; return setKnown(t.dataset.undo, false, true); }
+  switch (t.id) {
+    case "start": return startSession(pool());
+    case "study-latest": { const ids = latestIds(); const ws = S.words.filter((w) => ids.has(w.id) && !isKnown(w.id)); const due = ws.filter((w) => !box(w.id) || S.prog[w.id].due <= Date.now()); return startWith((due.length ? due : ws).slice(0, +$("size").value)); }
+    case "next": return nextCard();
+    case "quit": case "home": return show("study");
+    case "redo": return startWith([...S.quiz.missed.values()]);
+    case "hintbtn": return showHint();
+    case "giveup": return checkGap(true);
+    case "reveal": return revealFlash();
+    case "again": return flashGrade(false);
+    case "gotit": return flashGrade(true);
+    case "more": S.wordsShown += 150; return renderWords();
+    case "knowit": return knowInQuiz();
+    case "known-only": S.knownOnly = !S.knownOnly; return renderWords();
+  }
+});
+document.addEventListener("submit", (e) => { if (e.target.id === "gapform") { e.preventDefault(); const q = S.quiz; if (q && q.state === "shown") nextCard(); else checkGap(false); } });
+document.addEventListener("keydown", (e) => {
+  const q = S.quiz; if (!q || $("view-quiz").hidden) return;
+  if (e.target && e.target.id === "gapin") return; // the form handles Enter
+  if ((e.key === "k" || e.key === "K") && !e.metaKey && !e.ctrlKey && q.state !== "done") { const b = $("knowit"); if (b && !b.disabled) { e.preventDefault(); return knowInQuiz(); } }
+  if (q.state === "ask" && q.cur && q.cur.opts && /^[1-4]$/.test(e.key)) { e.preventDefault(); return answerOpt(+e.key - 1); }
+  if ((e.key === "r" || e.key === "R") && q.cur && (q.cur.ex === "listen" || q.state === "shown")) { const b = document.querySelector("#qcard .play"); if (b) { e.preventDefault(); playClip(q.cur.w.id, "phrase", b); } return; }
+  if (q.state === "ask" && q.cur && q.cur.ex === "flash") {
+    if (e.key === " " && !q.cur.revealed) { e.preventDefault(); return revealFlash(); }
+    if (q.cur.revealed && e.key === "1") return flashGrade(false);
+    if (q.cur.revealed && e.key === "2") return flashGrade(true);
+  }
+  if (q.state === "shown" && e.key === "Enter" && !(e.target && e.target.tagName === "BUTTON")) { e.preventDefault(); nextCard(); }
+});
+$("q").addEventListener("input", () => { S.wordsShown = 120; renderWords(); });
+$("mode").addEventListener("change", () => { saveSettings(); renderToday(); });
+$("size").addEventListener("change", () => { saveSettings(); renderToday(); });
+$("speed").addEventListener("change", () => { S.rate = +$("speed").value || 1; player.playbackRate = S.rate; saveSettings(); });
+function saveSettings() { lsSet(LS.settings, { filter: S.filter, mode: $("mode").value, size: $("size").value, speed: $("speed").value }); }
+
+/* ---------- boot ---------- */
+function boot() {
+  const st = lsGet(LS.settings, null);
+  if (st) { if (st.filter) S.filter = Object.assign(S.filter, st.filter); if (st.mode) $("mode").value = st.mode; if (st.size) $("size").value = st.size; if (st.speed) { $("speed").value = st.speed; S.rate = +st.speed || 1; } }
+  if (!$("mode").value) $("mode").value = "smart";
+  const cached = lsGet(LS.words, null); if (Array.isArray(cached)) setUnits(cached);
+  S.prog = lsGet(LS.prog, {}) || {};
+  S.meta = lsGet(LS.meta, null);
+  S.log = lsGet(LS.log, {}) || {};
+  S.known = lsGet(LS.known, {}) || {};
+  renderAll();
+  connect();
+}
+let pushedLocal = false;
+function pushLocalNewer(snap) { // progress made while the store was unreachable: send it up once, one write per unit
+  const remote = {}; for (const d of snap.docs) if (d.exists) Object.assign(remote, (d.data() || {}).cards || {});
+  const byUnit = new Map();
+  for (const [id, rec] of Object.entries(S.prog)) {
+    const w = S.byId.get(id); if (!w || !rec) continue;
+    const r = remote[id]; if (r && (r.last || 0) >= (rec.last || 0)) continue;
+    if (!byUnit.has(w.unitNo)) byUnit.set(w.unitNo, {}); byUnit.get(w.unitNo)[id] = rec;
+  }
+  for (const [no, cards] of byUnit) {
+    const docId = "u" + no; const ref = S.db.doc("progress/" + docId);
+    const run = () => (S.progDocs.has(docId) ? ref.update({ cards }) : ref.set({ unit: no, cards }).then(() => S.progDocs.add(docId))).catch(() => {});
+    const prev = writeChains.get(docId) || Promise.resolve(); writeChains.set(docId, prev.then(run, run));
+  }
+}
+async function connect() {
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch { db = null; }
+  if (!db) { S.dbState = "offline"; return renderAll(); }
+  S.db = db;
+  const fail = () => { S.dbState = "offline"; renderAll(); };
+  db.collection("units").limit(100).onSnapshot((snap) => {
+    const units = snap.docs.filter((d) => d.exists).map((d) => d.data()).filter((u) => u && Array.isArray(u.words));
+    S.dbState = "live"; setUnits(units); lsSet(LS.words, S.units);
+    if (S.filter.unit !== "all" && !S.units.some((u) => String(u.no) === String(S.filter.unit))) S.filter.unit = "all";
+    if (!S.quiz) renderAll(); else renderSync();
+  }, fail);
+  db.collection("progress").limit(100).onSnapshot((snap) => {
+    const merged = Object.assign({}, S.prog);
+    for (const d of snap.docs) {
+      if (!d.exists) continue; S.progDocs.add(d.id);
+      const cards = (d.data() || {}).cards || {};
+      for (const [id, rec] of Object.entries(cards)) { const mine = merged[id]; if (!mine || (rec && (rec.last || 0) >= (mine.last || 0))) merged[id] = rec; }
+    }
+    S.prog = merged; lsSet(LS.prog, S.prog);
+    if (!pushedLocal && !snap.metadata.fromCache) { pushedLocal = true; pushLocalNewer(snap); }
+    if (!S.quiz) renderAll();
+  }, () => {});
+  let pushedLog = false;
+  db.doc("stats/practice").onSnapshot((d) => {
+    const remote = (d.exists && (d.data() || {}).days) || {};
+    for (const [k, n] of Object.entries(remote)) if (typeof n === "number" && n > (S.log[k] || 0)) S.log[k] = n;
+    lsSet(LS.log, S.log);
+    if (!pushedLog && !(d.metadata && d.metadata.fromCache)) { pushedLog = true; for (const k of Object.keys(S.log)) if ((remote[k] || 0) < S.log[k]) saveLog(k); }
+    if (!S.quiz) renderAll();
+  }, () => {});
+  let pushedKnown = false;
+  db.doc("stats/known").onSnapshot((d) => { // {words: {id: {k, t}}} — newest change wins per word
+    if (d.exists) knownDoc = true;
+    const remote = (d.exists && (d.data() || {}).words) || {};
+    for (const [id, r] of Object.entries(remote)) if (r && (r.t || 0) >= ((S.known[id] && S.known[id].t) || 0)) S.known[id] = r;
+    lsSet(LS.known, S.known);
+    if (!pushedKnown && !(d.metadata && d.metadata.fromCache)) { pushedKnown = true; for (const [id, r] of Object.entries(S.known)) if (!remote[id] || (remote[id].t || 0) < r.t) saveKnown(id); }
+    if (!S.quiz) renderAll();
+  }, () => {});
+  db.doc("meta/sync").onSnapshot((d) => { if (d.exists) { S.meta = d.data(); lsSet(LS.meta, S.meta); if (!S.quiz) renderAll(); else renderSync(); } }, () => {});
+  db.collection("audio").limit(100).onSnapshot((snap) => { // audio/u<N> = {unit, words: {id: {say, ipa, tip, clips}}}
+    const m = new Map();
+    for (const d of snap.docs) { if (!d.exists) continue; const ws = (d.data() || {}).words || {}; for (const [id, a] of Object.entries(ws)) if (a) m.set(id, a); }
+    S.audio = m; if (!S.quiz) renderAll();
+  }, () => {});
+  db.doc("meta/audio").onSnapshot((d) => { S.audioMeta = d.exists ? d.data() : null; }, () => {});
+}
+const hot = window.claude && window.claude.hot;
+if (hot && hot.ready) hot.ready(boot); else boot();
+})();
+</script>
+
+</body>
+</html>
