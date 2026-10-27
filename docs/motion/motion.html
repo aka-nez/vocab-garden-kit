@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Vocab Garden — features</title>
+<style>
+@font-face{font-family:"Bricolage";font-weight:500;src:url(node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-500-normal.woff2)}
+@font-face{font-family:"Bricolage";font-weight:700;src:url(node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2)}
+@font-face{font-family:"Bricolage";font-weight:800;src:url(node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2)}
+@font-face{font-family:"Atkinson";font-weight:400;src:url(node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2)}
+@font-face{font-family:"Atkinson";font-weight:700;src:url(node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2)}
+@font-face{font-family:"Plex";font-weight:500;src:url(node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2)}
+@font-face{font-family:"Plex";font-weight:500;src:url(node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-cyrillic-500-normal.woff2);unicode-range:U+0400-04FF}
+:root{
+  --bg:#f3f5f0;--surface:#fff;--surface-2:#e9ede5;--line:#d5dccf;--ink:#17201a;--ink-2:#536056;--ink-3:#7c887f;
+  --leaf:#2d6a43;--leaf-ink:#fff;--leaf-soft:#dbeadf;--phrase-bg:#f6e3ba;--phrase-ink:#5e400c;--meaning-bg:#dce7fb;--meaning-ink:#1d3d75;
+  --good:#24804f;--good-bg:#dff1e6;--s0:#cfd5cb;--s1:#c5dfb3;--s2:#9fcb8b;--s3:#6fae6c;--s4:#3f8c55;--s5:#245f3a;
+  --fd:"Bricolage","Inter",sans-serif;--fb:"Atkinson","Inter",sans-serif;--fm:"Plex","DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);width:1280px;height:720px;overflow:hidden}
+body{font-family:var(--fb);color:var(--ink);font-size:20px;line-height:1.4}
+.stage{position:relative;width:1280px;height:720px;overflow:hidden;
+  background:radial-gradient(circle at 1px 1px,#dfe5da 1.2px,transparent 1.3px) 0 0/28px 28px,var(--bg)}
+.abs{position:absolute}
+.o0{opacity:0}
+/* captions */
+.cap{position:absolute;left:80px;top:150px;width:420px}
+.kick{font-family:var(--fm);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf);display:flex;gap:12px;align-items:center}
+.kick b{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--leaf);color:#fff;font-weight:500;letter-spacing:0}
+.cap h2{font-family:var(--fd);font-weight:800;font-size:56px;line-height:1.02;letter-spacing:-.02em;margin-top:22px}
+.cap p{font-size:21px;color:var(--ink-2);margin-top:20px;line-height:1.45}
+/* shared ui */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px -24px rgb(23 32 26 / .28)}
+.phrase{display:inline-block;background:var(--phrase-bg);color:var(--phrase-ink);font-family:var(--fd);font-weight:700;padding:2px 14px;border-radius:10px}
+.meaning{display:inline;background:var(--meaning-bg);color:var(--meaning-ink);padding:2px 8px;border-radius:7px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.tag{font-family:var(--fm);font-size:13px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink-3)}
+.label{font-family:var(--fm);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+mark{background:transparent;color:inherit;font-weight:700;border-bottom:3px solid var(--phrase-ink)}
+.play{width:64px;height:64px;border-radius:50%;background:var(--leaf);display:grid;place-items:center;color:#fff}
+.play svg{width:22px;height:22px;fill:#fff;margin-left:4px}
+.meter{display:inline-flex;gap:3px;vertical-align:middle}.meter i{width:10px;height:14px;border-radius:3px;background:var(--s0)}
+/* progress */
+.prog{position:absolute;left:80px;bottom:46px;display:flex;gap:10px}
+.prog div{width:64px;height:5px;border-radius:9px;background:#dbe1d6;overflow:hidden}
+.prog span{display:block;height:100%;width:0;background:var(--leaf)}
+.brand{position:absolute;left:80px;top:64px;display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:700;font-size:22px}
+</style></head><body>
+<div class="stage" id="stage">
+
+<!-- persistent brand + progress -->
+<div class="brand o0" id="brand"><svg width="30" height="30" viewBox="0 0 40 40"><path d="M20 36 C20 26 20 20 20 14" stroke="#2d6a43" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M20 18 C12 18 7 13 7 6 C14 6 20 10 20 18Z" fill="#6fae6c"/><path d="M20 15 C27 15 33 10 33 3 C25 3 20 8 20 15Z" fill="#2d6a43"/></svg>Vocab Garden</div>
+<div class="prog o0" id="prog"><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div></div>
+
+<!-- S0 intro -->
+<div class="abs" id="s0" style="left:0;top:0;width:1280px;height:720px">
+  <svg class="abs" id="sprout" width="220" height="220" viewBox="0 0 40 40" style="left:530px;top:92px;overflow:visible">
+    <path id="stem" d="M20 38 C20 28 20 21 20 14" stroke="#2d6a43" stroke-width="2.4" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+    <g id="leafL" style="transform-origin:20px 18px"><path d="M20 18 C12 18 7 13 7 6 C14 6 20 10 20 18Z" fill="#6fae6c"/></g>
+    <g id="leafR" style="transform-origin:20px 15px"><path d="M20 15 C27 15 33 10 33 3 C25 3 20 8 20 15Z" fill="#2d6a43"/></g>
+  </svg>
+  <h1 class="abs" id="title" style="left:0;width:1280px;top:338px;text-align:center;font-family:var(--fd);font-weight:800;font-size:96px;letter-spacing:-.03em;line-height:1"></h1>
+  <p class="abs o0" id="sub" style="left:0;width:1280px;top:458px;text-align:center;font-size:28px;color:var(--ink-2)">English vocabulary that grows itself — built on Claude</p>
+  <div class="abs o0" id="chips0" style="left:0;width:1280px;top:524px;display:flex;justify-content:center;gap:12px">
+    <span class="tag" style="font-size:15px;padding:6px 14px;background:#fff">Claude project</span><span class="tag" style="font-size:15px;padding:6px 14px;background:#fff">artifact + database</span><span class="tag" style="font-size:15px;padding:6px 14px;background:#fff">no server</span>
+  </div>
+</div>
+
+<!-- S1 send -->
+<div class="cap" id="c1"><div class="kick"><b>1</b>Send</div><h2>Send words<br>any way</h2><p>Type them, paste lesson notes, snap your notebook, or drop in a CSV.</p></div>
+<div class="abs card o0" id="chat" style="left:580px;top:96px;width:620px;height:520px;padding:0;overflow:hidden">
+  <div style="padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--fd);font-weight:700">English (Alex)</span><span class="label" style="font-size:12px">Claude project</span></div>
+  <div class="abs o0" id="b1" style="right:22px;top:80px;max-width:430px;background:var(--leaf);color:#fff;padding:14px 18px;border-radius:18px 18px 4px 18px">add: cut corners, take sth for granted, a blessing in disguise</div>
+  <div class="abs o0" id="b2" style="right:22px;top:178px;width:330px;background:var(--leaf);border-radius:18px 18px 4px 18px;padding:8px">
+    <div style="background:#fffdf6;border-radius:12px;height:150px;position:relative;overflow:hidden;background-image:repeating-linear-gradient(transparent 0 29px,#cfdbea 29px 30px);transform:rotate(-1.5deg)">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:2px;left:34px;background:#f0b8b8"></div>
+      <div style="position:absolute;left:48px;top:10px;font-family:'Bricolage';font-style:italic;font-size:21px;color:#2b3b6b;line-height:30px">
+        <div>Lesson 14.10</div><div><span style="border-bottom:2px solid #e3a33b">get the hang of sth</span></div><div><span style="border-bottom:2px solid #e3a33b">be on the fence</span></div><div><span style="text-decoration:line-through;opacity:.55">do</span> → make a decision</div>
+      </div>
+    </div>
+    <div style="color:#fff;padding:8px 8px 4px;font-size:18px">take the phrases from this photo</div>
+  </div>
+  <div class="abs o0" id="typing" style="left:22px;top:418px;background:var(--surface-2);border-radius:18px;padding:14px 18px;display:flex;gap:6px"><i class="d" style="width:9px;height:9px;border-radius:50%;background:var(--ink-3)"></i><i class="d" style="width:9px;height:9px;border-radius:50%;background:var(--ink-3)"></i><i class="d" style="width:9px;height:9px;border-radius:50%;background:var(--ink-3)"></i></div>
+  <div class="abs o0" id="b3" style="left:22px;top:404px;max-width:470px;background:var(--surface-2);padding:14px 18px;border-radius:18px 18px 18px 4px">
+    <div style="font-weight:700">Added 6 words to Unit 2 <span style="color:var(--good)">✓</span></div>
+    <div style="color:var(--ink-2);font-size:18px">translations · 5 example sentences each · audio</div>
+  </div>
+</div>
+
+<!-- S2 enrich -->
+<div class="cap" id="c2"><div class="kick"><b>2</b>Enrich</div><h2>Every phrase,<br>fully dressed</h2><p>Meaning, a translation into your language, and five example sentences — each a new situation and grammar form.</p></div>
+<div class="abs card o0" id="wcard" style="left:580px;top:96px;width:620px;height:520px;padding:34px 36px">
+  <div style="display:flex;justify-content:space-between;align-items:center"><span class="phrase" style="font-size:40px">cut corners</span><span style="display:flex;gap:8px"><span class="tag">idiom</span><span class="tag">unit 2</span></span></div>
+  <div style="margin-top:22px;font-size:22px"><span class="meaning">do something badly or cheaply to save time or money</span></div>
+  <div style="margin-top:18px;display:flex;align-items:center;gap:12px;height:32px"><span class="tag o0" id="lang" style="min-width:44px;text-align:center"></span><span id="tr" style="font-family:var(--fm);font-size:22px;color:var(--ink-2)"></span></div>
+  <div style="margin-top:22px;border-top:1px solid var(--line);padding-top:20px;position:relative;height:200px" id="exbox">
+    <div class="label" style="display:flex;justify-content:space-between"><span>Example sentences</span><span id="excount" class="tnum">1 / 5</span></div>
+  </div>
+  <div class="abs" id="ctxrow" style="left:36px;bottom:30px;display:flex;gap:8px"></div>
+</div>
+
+<!-- S3 audio -->
+<div class="cap" id="c3"><div class="kick"><b>3</b>Listen</div><h2>Hear every<br>word</h2><p>An American voice reads the phrase and all five sentences, with IPA and a sound tip for your accent. Paid once, cached forever.</p></div>
+<div class="abs card o0" id="acard" style="left:580px;top:96px;width:620px;height:520px;padding:34px 36px">
+  <span class="phrase" style="font-size:36px">take sth for granted</span>
+  <div id="ipa" style="font-family:var(--fm);font-size:22px;color:var(--ink-2);margin-top:14px;height:30px"></div>
+  <div style="display:flex;align-items:center;gap:22px;margin-top:26px">
+    <div class="play" id="playbtn"><svg viewBox="0 0 10 10"><path d="M1 .6 9.2 5 1 9.4z"/></svg></div>
+    <div id="wave" style="display:flex;gap:4px;align-items:center;height:70px"></div>
+  </div>
+  <div id="tip" class="o0" style="margin-top:28px;font-size:20px;color:var(--ink-2);border-left:4px solid var(--leaf-soft);padding-left:14px"><b style="color:var(--ink)">Sound tip.</b> Weak “for”: <span style="font-family:var(--fm)">fər</span> — and the t in granted is a quick, soft flap.</div>
+  <div style="margin-top:30px" class="label">6 clips per word</div>
+  <div id="clips" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"></div>
+</div>
+
+<!-- S4 practise -->
+<div class="cap" id="c4"><div class="kick"><b>4</b>Practise</div><h2>Six ways<br>to practise</h2><p>Smart mix moves each word from recognising it to producing it — by meaning, translation, typing and ear.</p></div>
+<div class="abs o0" id="modes" style="left:580px;top:86px;width:620px;display:flex;flex-wrap:wrap;gap:8px"></div>
+<div class="abs card o0" id="qcard" style="left:580px;top:186px;width:620px;height:430px;padding:30px 34px;overflow:hidden">
+  <div id="qm1" class="abs" style="left:34px;top:30px;width:552px">
+    <div style="display:flex;justify-content:space-between"><span class="label">What does it mean?</span><span style="font-size:15px;color:var(--ink-2)"><span class="meter" id="mt1"><i></i><i></i><i></i><i></i><i></i></span> <span id="st1">Seed</span></span></div>
+    <div style="margin-top:16px"><span class="phrase" style="font-size:34px">a blessing in disguise</span></div>
+    <div id="opts1" style="display:grid;gap:10px;margin-top:22px"></div>
+  </div>
+  <div id="qm2" class="abs o0" style="left:34px;top:30px;width:552px">
+    <span class="label">Fill the gap</span>
+    <div style="font-size:25px;margin-top:16px;line-height:1.5">That bakery <span style="display:inline-block;min-width:190px;border-bottom:3px solid var(--ink-2)">&nbsp;</span> lately, and regulars noticed the cheaper butter.</div>
+    <div style="margin-top:10px"><span class="meaning" style="font-size:18px">do something badly or cheaply to save time or money</span></div>
+    <div id="gapin" style="margin-top:22px;border:2px solid var(--line);border-radius:12px;padding:12px 16px;font-size:24px;height:58px;background:var(--bg)"><span id="gaptxt"></span><span id="caret" style="display:inline-block;width:2px;height:26px;background:var(--ink);vertical-align:-4px;margin-left:2px"></span></div>
+    <div id="gapok" class="o0" style="margin-top:14px;font-family:var(--fd);font-weight:700;font-size:22px;color:var(--good)">Correct · Sprout → Seedling</div>
+  </div>
+  <div id="qm3" class="abs o0" style="left:34px;top:30px;width:552px">
+    <span class="label">What did you hear?</span>
+    <div style="display:flex;align-items:center;gap:18px;margin-top:18px"><div class="play" style="width:56px;height:56px"><svg viewBox="0 0 10 10"><path d="M1 .6 9.2 5 1 9.4z"/></svg></div><div id="wave2" style="display:flex;gap:4px;align-items:center;height:50px"></div></div>
+    <div id="opts3" style="display:grid;gap:10px;margin-top:22px"></div>
+  </div>
+</div>
+
+<!-- S5 grow -->
+<div class="cap" id="c5"><div class="kick"><b>5</b>Grow</div><h2>Watch it<br>grow</h2><p>Right answers move a word up a stage; a miss brings it back tomorrow. Streaks and per-unit progress keep you going.</p></div>
+<div class="abs card o0" id="gcard" style="left:580px;top:96px;width:620px;height:240px;padding:28px 34px">
+  <div class="label">Growth stages</div>
+  <div id="stages" class="abs" style="left:66px;top:96px;width:488px;height:120px"></div>
+</div>
+<div class="abs card o0" id="kcard" style="left:580px;top:356px;width:300px;height:260px;padding:24px 26px">
+  <div style="font-family:var(--fd);font-weight:800;font-size:44px;line-height:1" id="streakn">🔥 0</div>
+  <div class="label" style="margin-top:6px">days in a row</div>
+  <div id="days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:22px"></div>
+</div>
+<div class="abs card o0" id="ucard" style="left:900px;top:356px;width:300px;height:260px;padding:24px 26px">
+  <div class="label">Garden by unit</div>
+  <div id="units" style="display:grid;gap:16px;margin-top:16px"></div>
+</div>
+
+<!-- S6 outro -->
+<div class="abs o0" id="s6" style="left:0;top:0;width:1280px;height:720px">
+  <svg class="abs" width="96" height="96" viewBox="0 0 40 40" style="left:592px;top:150px"><path d="M20 38 C20 28 20 21 20 14" stroke="#2d6a43" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M20 18 C12 18 7 13 7 6 C14 6 20 10 20 18Z" fill="#6fae6c"/><path d="M20 15 C27 15 33 10 33 3 C25 3 20 8 20 15Z" fill="#2d6a43"/></svg>
+  <div class="abs" id="o1" style="left:0;width:1280px;top:262px;text-align:center;font-family:var(--fd);font-weight:800;font-size:64px;letter-spacing:-.02em">Plant one for a friend</div>
+  <div class="abs" id="o2" style="left:0;width:1280px;top:352px;text-align:center;font-size:24px;color:var(--ink-2)">In their Claude project, attach the repo and say:</div>
+  <div class="abs" id="o3" style="left:290px;width:700px;top:404px;text-align:center"><div class="card" style="display:inline-block;padding:16px 26px;font-family:var(--fm);font-size:21px;border-radius:14px"><span id="o3t"></span><span id="caret2" style="display:inline-block;width:2px;height:22px;background:var(--ink);vertical-align:-3px;margin-left:2px"></span></div></div>
+  <div class="abs" id="o4" style="left:0;width:1280px;top:502px;text-align:center;font-family:var(--fm);font-size:20px;color:var(--leaf)">github.com/aka-nez/vocab-garden-kit</div>
+</div>
+
+</div>
+<script>
+const $=(id)=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const E={out:x=>1-Math.pow(1-x,3),in:x=>x*x*x,io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,back:x=>{const c=1.70158,d=c+1;return 1+d*Math.pow(x-1,3)+c*Math.pow(x-1,2)}};
+const lerp=(a,b,k)=>a+(b-a)*k;
+function st(el,{o=1,x=0,y=0,s=1}={}){el.style.opacity=o;el.style.transform=`translate(${x}px,${y}px) scale(${s})`;}
+// visible between a and b with enter/exit motion
+function vis(el,t,a,b,{dy=26,dx=0,s0=1,d=.55,dout=.4}={}){
+  const i=E.out(P(t,a,a+d)),o=1-E.in(P(t,b-dout,b));const k=Math.min(i,o);
+  st(el,{o:k,y:(1-i)*dy+(1-o)*-dy*.6,x:(1-i)*dx+(1-o)*-dx*.6,s:lerp(s0,1,i)});
+}
+function capt(n,t,a,b){const c=$("c"+n);const kids=c.children;[...kids].forEach((k,j)=>vis(k,t,a+j*.09,b-.0,{dy:30}));c.style.opacity=1;}
+
+/* ---------- build dynamic bits ---------- */
+const EX=[
+ ["The builders cut corners on the roof, so it started leaking within a month.","cut corners","past simple","home"],
+ ["If you are cutting corners on sleep before exams, your memory suffers.","are cutting corners","present continuous","study"],
+ ["That bakery has cut corners lately, and regulars noticed the cheaper butter.","has cut corners","present perfect","food"],
+ ["Coaches warn young runners not to cut corners during their warm up.","cut corners","infinitive","sport"],
+ ["Our accountant never cuts corners and checks every invoice twice.","cuts corners","present simple","money"]];
+const exEls=EX.map(([s,a,f,c],i)=>{const d=document.createElement("div");d.className="abs o0";d.style.cssText="left:0;top:40px;width:548px";
+  const k=s.indexOf(a);d.innerHTML=`<div style="font-size:24px;font-style:italic;line-height:1.45">${s.slice(0,k)}<mark>${a}</mark>${s.slice(k+a.length)}</div><div style="margin-top:12px;font-size:16px;font-weight:700;color:var(--ink-3)">${f} · ${c}</div>`;$("exbox").appendChild(d);return d;});
+const ctxEls=EX.map(([,,,c])=>{const s=document.createElement("span");s.className="tag";s.textContent=c;s.style.transition="none";$("ctxrow").appendChild(s);return s;});
+const LANGS=[["ES","hacer chapuzas"],["DE","pfuschen"],["UK","халтурити"],["RU","халтурить, срезать углы"]];
+for(let i=0;i<40;i++){const b=document.createElement("i");b.style.cssText="width:6px;border-radius:3px;background:var(--leaf);display:block";$("wave").appendChild(b);}
+for(let i=0;i<30;i++){const b=document.createElement("i");b.style.cssText="width:5px;border-radius:3px;background:var(--leaf);display:block";$("wave2").appendChild(b);}
+const CLIPS=["phrase","example","example 2","example 3","example 4","example 5"].map(n=>{const s=document.createElement("span");s.className="tag";s.style.cssText="font-size:14px;padding:5px 10px;background:#fff";s.innerHTML=`<span class="ck" style="color:var(--good);display:inline-block;width:0;overflow:hidden;vertical-align:bottom">✓&nbsp;</span>${n}`;$("clips").appendChild(s);return s;});
+const MODES=["Pick the meaning","Pick the phrase","Translation → English","Fill the gap","Flashcards","What did you hear?"].map(n=>{const s=document.createElement("span");s.style.cssText="border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:17px;background:#fff;color:var(--ink-2)";s.textContent=n;$("modes").appendChild(s);return s;});
+function opts(host,list){return list.map((txt,i)=>{const d=document.createElement("div");d.style.cssText="border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;gap:14px;align-items:center;font-size:20px;background:#fff";d.innerHTML=`<span style="font-family:var(--fm);font-size:13px;border:1px solid var(--line);border-radius:5px;padding:0 7px;color:var(--ink-3)">${i+1}</span><span>${txt}</span>`;$(host).appendChild(d);return d;});}
+const O1=opts("opts1",["a problem that looks like an advantage","something good that first seemed bad","a secret that everyone already knows"]);
+const O3=opts("opts3",["take sth for granted","get the hang of sth","be on the fence"]);
+const STG=["Seed","Sprout","Seedling","Leafy","Blooming","Rooted"],IV=["1 day","3 days","1 week","16 days","40 days"];
+const stageEls=STG.map((n,i)=>{const x=i*(488/5);const d=document.createElement("div");d.className="abs";d.style.cssText=`left:${x-30}px;top:0;width:60px;text-align:center`;
+  d.innerHTML=`<div class="dot" style="width:34px;height:34px;border-radius:50%;margin:0 auto;background:#fff;border:3px solid var(--s0)"></div><div style="margin-top:10px;font-size:17px;font-weight:700;white-space:nowrap;margin-left:-20px;margin-right:-20px">${n}</div>`;$("stages").appendChild(d);return d;});
+const track=document.createElement("div");track.className="abs";track.style.cssText="left:0;top:15px;width:488px;height:4px;background:var(--s0);border-radius:4px;z-index:-1";$("stages").prepend(track);
+const fill=document.createElement("div");fill.className="abs";fill.style.cssText="left:0;top:15px;height:4px;background:var(--leaf);border-radius:4px;z-index:-1";$("stages").prepend(fill);
+const ivEls=IV.map((n,i)=>{const d=document.createElement("div");d.className="abs o0";d.style.cssText=`left:${(i+.5)*(488/5)-40}px;top:-26px;width:80px;text-align:center;font-family:var(--fm);font-size:14px;color:var(--ink-3)`;d.textContent=n;$("stages").appendChild(d);return d;});
+const dayEls=[];for(let i=0;i<14;i++){const d=document.createElement("i");d.style.cssText="height:28px;border-radius:7px;background:var(--surface-2);display:block";$("days").appendChild(d);dayEls.push(d);}
+const DAYON=[0,1,0,1,1,1,1,1,1,1,1,1,1,1];
+const UNITS=[["Money management",[2,3,4,5,6,4]],["Life lessons",[6,5,5,3,2,1]],["Travel",[14,4,2,0,0,0]]].map(([n,dist])=>{const d=document.createElement("div");
+  d.innerHTML=`<div style="font-size:16px;font-weight:700">${n}</div><div class="bar" style="display:flex;height:10px;border-radius:9px;overflow:hidden;background:var(--s0);margin-top:6px"></div>`;
+  const bar=d.querySelector(".bar");const tot=dist.reduce((a,b)=>a+b,0);const segs=dist.map((v,i)=>{const s=document.createElement("span");s.style.cssText=`display:block;height:100%;background:var(--s${i})`;s._w=v/tot*100;bar.appendChild(s);return s;});$("units").appendChild(d);return segs;});
+
+/* ---------- timeline ---------- */
+const T=[0,3.2,7.6,12.4,16.2,21.4,24.8,28];
+function seek(t){
+  // intro
+  const s0o=1-E.in(P(t,2.8,3.2));
+  $("s0").style.opacity=s0o;
+  $("stem").style.strokeDashoffset=1-E.io(P(t,.1,1.0));
+  $("leafL").style.transform=`scale(${E.back(P(t,.7,1.3))})`;$("leafR").style.transform=`scale(${E.back(P(t,.85,1.45))})`;
+  const word="Vocab Garden";$("title").innerHTML=[...word].map((c,i)=>{const k=E.out(P(t,.9+i*.045,1.4+i*.045));return `<span style="display:inline-block;opacity:${k};transform:translateY(${(1-k)*40}px)">${c===" "?"&nbsp;":c}</span>`}).join("");
+  vis($("sub"),t,1.6,99,{dy:16});vis($("chips0"),t,2.0,99,{dy:16});
+  // brand + progress
+  vis($("brand"),t,3.2,24.9,{dy:-12});vis($("prog"),t,3.3,24.9,{dy:12});
+  [...$("prog").querySelectorAll("span")].forEach((s,i)=>{s.style.width=(P(t,T[i+1],T[i+2])*100)+"%";});
+  // S1
+  capt(1,t,3.35,7.6);
+  vis($("chat"),t,3.4,7.6,{dx:60,dy:0,s0:.97});
+  vis($("b1"),t,3.9,99,{dy:20,s0:.9});vis($("b2"),t,4.7,99,{dy:20,s0:.9});
+  const ty=P(t,5.5,6.25);$("typing").style.opacity=(ty>0&&ty<1)?1:0;[...$("typing").children].forEach((d,i)=>d.style.transform=`translateY(${-4*Math.max(0,Math.sin((t*9)-i*.9))}px)`);
+  vis($("b3"),t,6.25,99,{dy:16,s0:.92});
+  // S2
+  capt(2,t,7.75,12.4);
+  vis($("wcard"),t,7.8,12.4,{dx:60,dy:0,s0:.97});
+  const li=Math.min(3,Math.floor(P(t,8.35,9.55)*4));const lk=t<8.35?0:1;$("lang").style.opacity=lk;$("lang").textContent=LANGS[li][0];
+  const trw=LANGS[li][1];$("tr").textContent=t<8.35?"":trw;$("tr").style.opacity=lk;
+  if(li===3){$("lang").style.background="var(--leaf)";$("lang").style.color="#fff";$("lang").style.borderColor="var(--leaf)";}else{$("lang").style.background="";$("lang").style.color="";$("lang").style.borderColor="";}
+  const ex0=9.6,exd=.5;
+  exEls.forEach((el,i)=>{const a=ex0+i*exd,b=i===4?99:a+exd+.08;vis(el,t,a,b,{dx:50,dy:0,d:.3,dout:.18});});
+  const cur=clamp(Math.floor((t-ex0)/exd),0,4);$("excount").textContent=`↻ ${cur+1} / 5`;$("excount").style.opacity=t<ex0?0:1;
+  ctxEls.forEach((el,i)=>{const on=t>=ex0+i*exd;el.style.background=on?(i===cur?"var(--leaf)":"var(--leaf-soft)"):"#fff";el.style.color=on?(i===cur?"#fff":"var(--leaf)"):"var(--ink-3)";el.style.borderColor=on?"var(--leaf)":"var(--line)";});
+  // S3
+  capt(3,t,12.55,16.2);
+  vis($("acard"),t,12.6,16.2,{dx:60,dy:0,s0:.97});
+  const ipa="/ˈteɪk ˈsʌmθɪŋ fər ˈɡræntɪd/";$("ipa").textContent=ipa.slice(0,Math.round(P(t,13.0,13.7)*ipa.length));
+  const playing=t>13.5&&t<15.6;const pp=playing?1+.06*Math.sin(t*12):1;$("playbtn").style.transform=`scale(${pp})`;
+  $("playbtn").style.boxShadow=playing?`0 0 0 ${8+6*Math.sin(t*6)}px rgb(45 106 67 / .15)`:"none";
+  [...$("wave").children].forEach((b,i)=>{const amp=playing?(.35+.65*Math.abs(Math.sin(t*7+i*.55)*Math.cos(t*3.1+i*.21))):.12;b.style.height=(8+60*amp)+"px";b.style.opacity=playing?1:.35;});
+  vis($("tip"),t,14.0,99,{dy:14});
+  CLIPS.forEach((c,i)=>{const k=P(t,13.7+i*.22,13.9+i*.22);c.querySelector(".ck").style.width=(k*22)+"px";c.style.borderColor=k>0?"var(--good)":"var(--line)";c.style.background=k>=1?"var(--good-bg)":"#fff";});
+  // S4
+  capt(4,t,16.35,21.4);
+  vis($("modes"),t,16.4,21.4,{dy:-16});vis($("qcard"),t,16.5,21.4,{dx:60,dy:0,s0:.97});
+  const m=t<18.05?0:t<19.75?3:5;MODES.forEach((el,i)=>{const on=i===m;el.style.background=on?"var(--ink)":"#fff";el.style.color=on?"var(--bg)":"var(--ink-2)";el.style.borderColor=on?"var(--ink)":"var(--line)";});
+  vis($("qm1"),t,16.6,18.05,{dx:40,dy:0,d:.4,dout:.3});
+  O1.forEach((o,i)=>{const picked=t>17.35;o.style.borderColor=picked&&i===1?"var(--good)":"var(--line)";o.style.background=picked&&i===1?"var(--good-bg)":"#fff";o.style.opacity=picked&&i!==1?.55:1;});
+  const up1=t>17.55;[...$("mt1").children].forEach((b,i)=>b.style.background=up1&&i===0?"var(--s1)":"var(--s0)");$("st1").textContent=up1?"Seed → Sprout":"Seed";$("st1").style.color=up1?"var(--good)":"";$("st1").style.fontWeight=up1?700:400;
+  vis($("qm2"),t,18.05,19.75,{dx:40,dy:0,d:.4,dout:.3});
+  const ans="has cut corners";$("gaptxt").textContent=ans.slice(0,Math.round(P(t,18.45,19.15)*ans.length));
+  $("caret").style.opacity=(t<19.2&&Math.floor(t*3)%2===0)?1:t<19.2?0:0;
+  const ok2=t>19.25;$("gapin").style.borderColor=ok2?"var(--good)":"var(--line)";vis($("gapok"),t,19.25,99,{dy:10,d:.3});
+  vis($("qm3"),t,19.75,21.4,{dx:40,dy:0,d:.4,dout:.3});
+  const pl3=t>19.95&&t<20.75;[...$("wave2").children].forEach((b,i)=>{const amp=pl3?(.35+.65*Math.abs(Math.sin(t*8+i*.6)*Math.cos(t*2.7+i*.3))):.12;b.style.height=(6+44*amp)+"px";b.style.opacity=pl3?1:.35;});
+  O3.forEach((o,i)=>{const picked=t>20.8;o.style.borderColor=picked&&i===0?"var(--good)":"var(--line)";o.style.background=picked&&i===0?"var(--good-bg)":"#fff";o.style.opacity=picked&&i!==0?.55:1;});
+  // S5
+  capt(5,t,21.55,24.8);
+  vis($("gcard"),t,21.6,24.8,{dx:60,dy:0,s0:.97});vis($("kcard"),t,21.8,24.8,{dy:30});vis($("ucard"),t,21.95,24.8,{dy:30});
+  const g=E.io(P(t,22.1,23.6));fill.style.width=(g*488)+"px";
+  stageEls.forEach((el,i)=>{const on=g>=i/5-.001&&t>22.1;const dot=el.querySelector(".dot");dot.style.background=on?`var(--s${Math.max(i,1)})`:"#fff";dot.style.borderColor=on?`var(--s${Math.max(i,1)})`:"var(--s0)";dot.style.transform=on&&g<i/5+.08?"scale(1.25)":"scale(1)";});
+  ivEls.forEach((el,i)=>vis(el,t,22.1+i*.28,99,{dy:8,d:.3}));
+  let streak=0;dayEls.forEach((d,i)=>{const on=DAYON[i]&&t>22.6+i*.08;d.style.background=on?"var(--leaf)":"var(--surface-2)";});
+  let run=0;for(let i=0;i<14;i++){if(DAYON[i]&&t>22.6+i*.08)run++;else run=0;}$("streakn").textContent="🔥 "+run;
+  const ug=E.out(P(t,22.4,23.9));UNITS.forEach(segs=>segs.forEach(s=>s.style.width=(s._w*ug)+"%"));
+  // S6
+  $("s6").style.opacity=E.out(P(t,24.9,25.4));
+  vis($("o1"),t,25.0,99,{dy:24});vis($("o2"),t,25.25,99,{dy:18});vis($("o3"),t,25.45,99,{dy:18});vis($("o4"),t,26.6,99,{dy:12});
+  const cmd="Read HANDOFF.md and set up a Vocab Garden for me.";$("o3t").textContent=cmd.slice(0,Math.round(P(t,25.7,26.6)*cmd.length));
+  $("caret2").style.opacity=Math.floor(t*2.5)%2===0?1:0;
+}
+window.seek=seek;window.DURATION=28;
+seek(0);
+</script></body></html>

@@ -12,10 +12,9 @@ or a CSV/Anki export. For each new phrase Claude:
    cached forever,
 4. adds everything to your **Vocab Garden**: a private quiz page with its own database.
 
-<p>
-<img src="docs/screenshot-garden.png" width="300" alt="Garden overview: streak, due cards, units, recently added words">
-<img src="docs/screenshot-quiz.png" width="300" alt="Quiz card: what does it mean?">
-</p>
+![Vocab Garden in 28 seconds: send words, enrich, listen, practise, grow](docs/vocab-garden-features.gif)
+
+<sub>Same animation as [MP4](docs/vocab-garden-features.mp4) · source in [`docs/motion`](docs/motion)</sub>
 
 **The quiz page:** six growth stages (Seed → Rooted) on a 1/3/7/16/40-day schedule; Smart mix that moves from
 recognition (pick the meaning) to recall (translation → English, fill the gap, by ear); "What did you hear?" audio
@@ -55,6 +54,7 @@ page/vocab-garden.template.html  the quiz page (one self-contained file)
 kit/                             runbook, rules, scripts and project instructions for the learner's Claude project
 tools/render.py                  fills {{PLACEHOLDERS}} from config.json into build/
 examples/                        two fully enriched demo words (data shape + smoke test)
+docs/                            feature animation (GIF/MP4) and its source
 ```
 
 Local smoke test (Python 3.9+; `requests` and `ffmpeg` only needed for audio):
