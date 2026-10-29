@@ -48,7 +48,7 @@ Details and prerequisites: [`HANDOFF.md`](HANDOFF.md). The procedure Claude foll
 - Claude: whatever plan the learner already has.
 - Audio: OpenRouter TTS, ~$0.035 per word (six clips) at October 2026 prices — roughly $15–20 for a 500-word
   import, cents for a lesson's worth of words. `tts_cache.py plan` shows the exact figure before anything is spent.
-  The Verbs tab adds ~$0.60 once (453 clips).
+  The Verbs tab adds ~$1.20 once (453 clips, ~15k characters at $0.08 per 1k characters, October 2026).
 
 ## Repo layout
 

@@ -159,7 +159,7 @@ can't have + V3* sentence, 4 options — one is always the other form of the sam
    voiced). Check with the learner's teacher-eye: natural, short, the modal nuance kept ("must have" = sure guess).
 2. `python3 verbs_tool.py build --src <src> --notes <notes> --out verbs_list.json` (exit 2 lists bad lines; add
    `--table` to eyeball the trap options) → ArtifactData `set verbs/list` with `file_path` (new doc, no `if_version`).
-3. Audio (≈ 453 clips, ~15k characters ≈ $0.60 — tell the learner, get a yes):
+3. Audio (≈ 453 clips, ~15k characters — about $1.20 at $0.08 per 1k; `plan` shows the live price. Tell the learner, get a yes):
    `verbs_tool.py jobs --voice <VOICE> --model <TTS_MODEL> --out verbs_jobs.json` → `tts_cache.py plan --jobs
    verbs_jobs.json` → `run … --max-chars 20000` → `pack --jobs verbs_jobs.json --artifact <ARTIFACT_URL>` → upload
    (19 calls of ≤25) → `attach` → `verbs_tool.py audio-doc --jobs verbs_jobs.json --artifact <ARTIFACT_URL>`
