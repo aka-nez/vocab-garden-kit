@@ -187,6 +187,30 @@ section{margin-top:30px}
 .qtop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 32px);background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 10px 9px 18px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgb(0 0 0 / .18);z-index:10;font-size:.92rem}
 .toast button{border:0;background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px;font-weight:700}
+/* irregular verbs */
+.vintro{font-size:.92rem;color:var(--ink-2)}
+.cheat{display:grid;gap:4px;font-size:.88rem;color:var(--ink-2);border-top:1px solid var(--line);padding-top:12px}
+.cheat b{color:var(--ink);font-family:var(--f-display)}
+.vlist{display:grid;gap:2px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.vrow{background:var(--surface)}
+.vrow summary{list-style:none;cursor:pointer;padding:10px 14px;display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.vrow summary::-webkit-details-marker{display:none}
+.vrow summary:hover{background:var(--surface-2)}
+.vrow summary .ru{grid-column:2;font-size:.86rem}
+.vrow summary .vmeters,.vrow summary > .stage{grid-column:3;grid-row:1 / span 2}
+.vn{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3)}
+.vf{font-family:var(--f-display);font-weight:700;min-width:0;overflow-wrap:anywhere}
+.vmeters{display:grid;gap:3px;justify-items:end}
+.vbody{padding:4px 14px 14px;display:grid;gap:12px}
+.vex{display:grid;gap:4px}
+.vex .ex mark{background:transparent;color:inherit;font-style:normal;font-weight:700;border-bottom:2px solid var(--phrase-ink)}
+.vex .play{justify-self:start}
+.vex .extag{text-transform:none;letter-spacing:0}
+.vform{display:grid;gap:12px}
+.vform label{display:grid;gap:4px}
+.vforms-big{font-family:var(--f-display);font-weight:800;font-size:1.35rem;overflow-wrap:anywhere}
+.detail > .play,.vbody > .play{justify-self:start}
+@media (min-width:560px){.vform{grid-template-columns:1fr 1fr}.vform .row{grid-column:1 / -1}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -202,6 +226,7 @@ section{margin-top:30px}
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" id="tab-study" aria-selected="true" data-tab="study">Study</button>
     <button role="tab" id="tab-words" aria-selected="false" data-tab="words">All words</button>
+    <button role="tab" id="tab-verbs" aria-selected="false" data-tab="verbs">Verbs</button>
   </nav>
 
   <main id="view-study">
@@ -275,6 +300,51 @@ section{margin-top:30px}
     <div class="row" style="margin-block:10px;justify-content:space-between"><div class="fsum" id="words-count"></div><button class="chip" id="known-only" aria-pressed="false" hidden>Known only</button></div>
     <div class="words" id="wordlist"></div>
     <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="more" hidden>Show more</button></div>
+  </main>
+
+  <main id="view-verbs" hidden>
+    <div class="today">
+      <div><h2>Irregular verbs</h2><p class="vintro" style="margin:4px 0 0">The most common irregular verbs, kept apart from your vocabulary words. Each verb has a past simple example and a modal one: should, could, must, might or can't + have + V3.</p></div>
+      <div class="today-head">
+        <div class="stat"><span class="big tnum" id="vst-due">–</span><span class="label">due for review</span></div>
+        <div class="stat"><span class="n tnum" id="vst-new">–</span><span class="label">new to learn</span></div>
+        <div class="stat"><span class="n tnum" id="vst-grow">–</span><span class="label">growing</span></div>
+        <div class="stat"><span class="n tnum" id="vst-done">–</span><span class="label">rooted</span></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="v-start" disabled>Start session</button>
+        <label class="sr" for="v-mode">Exercise type</label>
+        <select id="v-mode">
+          <option value="type">Type the forms</option>
+          <option value="trap">Spot the trap</option>
+        </select>
+        <label class="sr" for="v-size">Verbs per session</label>
+        <select id="v-size">
+          <option value="10">10 verbs</option>
+          <option value="20" selected>20 verbs</option>
+          <option value="30">30 verbs</option>
+        </select>
+      </div>
+      <div class="fsum" id="v-plan"></div>
+      <div class="cheat" id="v-cheat"></div>
+    </div>
+    <section>
+      <div class="sec-head"><h2>All verbs</h2><span class="label" id="v-count"></span></div>
+      <input class="search" id="v-q" type="search" placeholder="Search a verb or its translation…" autocomplete="off" style="margin-bottom:10px">
+      <div class="vlist" id="v-list"><div class="empty">Verbs appear here once the word store answers.</div></div>
+    </section>
+  </main>
+
+  <main id="view-vquiz" hidden>
+    <div class="quiz">
+      <div class="qbar">
+        <button class="btn small" id="v-quit">End</button>
+        <div class="track"><span id="vqprog" style="width:0"></span></div>
+        <span class="label tnum" id="vqcount"></span>
+      </div>
+      <div class="card" id="vqcard"></div>
+      <div class="kbd" id="vqkeys"></div>
+    </div>
   </main>
 
   <main id="view-quiz" hidden>
@@ -818,14 +888,287 @@ function renderDone() {
   $("qkeys").textContent = "";
 }
 function show(view) {
-  S.tab = view === "quiz" ? S.tab : view;
+  const inQuiz = view === "quiz" || view === "vquiz";
+  S.tab = inQuiz ? S.tab : view;
+  if (view !== "vquiz") VS.quiz = null;
   $("view-study").hidden = view !== "study"; $("view-words").hidden = view !== "words"; $("view-quiz").hidden = view !== "quiz";
-  $("tabs").hidden = view === "quiz"; document.querySelector(".top").hidden = view === "quiz";
+  $("view-verbs").hidden = view !== "verbs"; $("view-vquiz").hidden = view !== "vquiz";
+  $("tabs").hidden = inQuiz; document.querySelector(".top").hidden = inQuiz;
   for (const b of $("tabs").querySelectorAll("button")) b.setAttribute("aria-selected", String(b.dataset.tab === view));
   if (view === "words") renderWords();
+  if (view === "verbs") renderVerbs();
   if (view !== "quiz") { if (S.quiz && S.quiz.answered >= 3) recordSession(); S.quiz = null; renderAll(); }
   window.scrollTo({ top: 0 });
 }
+
+/* ---------- irregular verbs trainer (own data: db verbs/list, verbs/audio, verbs/progress) ---------- */
+const VLS = { list: "vg.verbs.list.v1", prog: "vg.verbs.prog.v1", clips: "vg.verbs.audio.v1", settings: "vg.verbs.settings.v1", notes: "vg.verbs.notes.v1" };
+const VS = { list: [], byId: new Map(), prog: {}, clips: {}, notes: null, progDoc: false, quiz: null, state: "connecting" };
+const MODALS = ["should have", "could have", "must have", "might have", "can't have"];
+const VNOTES_EN = { modals: { "should have": "it was the right thing to do, but it didn't happen (regret, criticism)", "could have": "it was possible, but it didn't happen", "must have": "I'm almost sure it happened", "might have": "maybe it happened", "can't have": "I'm sure it didn't happen" }, v2_rule: "a finished action in the past.", v3_rule: "After a modal + have, always use the 3rd form." };
+const vNotes = () => { const n = VS.notes || {}; return { modals: Object.assign({}, VNOTES_EN.modals, n.modals || {}), v2_rule: n.v2_rule || VNOTES_EN.v2_rule, v3_rule: n.v3_rule || VNOTES_EN.v3_rule }; };
+const vForms = (v) => `${v.v1} – ${v.v2.join("/")} – ${v.v3.join("/")}`;
+function vSetList(arr) { VS.list = (arr || []).filter((v) => v && v.id && v.v1).sort((a, b) => (a.n || 0) - (b.n || 0)); VS.byId = new Map(VS.list.map((v) => [v.id, v])); }
+const vRec = (id, f) => (VS.prog[id] && VS.prog[id]["f" + f]) || null;
+const vBox = (id, f) => { const r = vRec(id, f); return r ? r.b || 0 : 0; };
+const vStage = (id) => Math.min(vBox(id, 2), vBox(id, 3));
+const vSeen = (id) => !!(vRec(id, 2) || vRec(id, 3));
+function vNeeds(id, now = Date.now()) { // forms that are due, or never asked for a verb you have started
+  if (!vSeen(id)) return [];
+  return [2, 3].filter((f) => { const r = vRec(id, f); return !r || !r.b || r.due <= now; });
+}
+const vNextDue = (id) => Math.min(...[2, 3].map((f) => { const r = vRec(id, f); return r && r.b ? r.due : 0; }));
+function vCounts() {
+  const now = Date.now(); let due = 0, fresh = 0, grow = 0, done = 0;
+  for (const v of VS.list) { if (!vSeen(v.id)) { fresh++; continue; } if (vNeeds(v.id, now).length) due++; if (vStage(v.id) >= 5) done++; else grow++; }
+  return { due, fresh, grow, done };
+}
+function vPlan(size, mode, dry) {
+  const now = Date.now(); const newCap = Math.max(5, Math.round(size * 0.5));
+  const due = VS.list.filter((v) => vNeeds(v.id, now).length).sort((a, b) => vNextDue(a.id) - vNextDue(b.id));
+  const fresh = VS.list.filter((v) => !vSeen(v.id));
+  let items = due.slice(0, size); const nDue = items.length;
+  const room = size - items.length;
+  const newPick = fresh.slice(0, nDue ? Math.min(room, newCap) : room);
+  items = items.concat(newPick);
+  let nExtra = 0;
+  if (!items.length) { items = VS.list.filter((v) => vSeen(v.id)).sort((a, b) => vStage(a.id) - vStage(b.id) || vNextDue(a.id) - vNextDue(b.id)).slice(0, size); nExtra = items.length; }
+  if (dry) return { n: items.length, nDue, nNew: newPick.length, nExtra };
+  const order = shuffle(items.slice(0, nDue)).concat(shuffle(items.slice(nDue)));
+  return order.map((v) => { const need = vNeeds(v.id, now); const f = need.length === 1 ? need[0] : (vBox(v.id, 2) < vBox(v.id, 3) ? 2 : vBox(v.id, 3) < vBox(v.id, 2) ? 3 : (Math.random() < 0.5 ? 2 : 3)); return { id: v.id, f, mode }; });
+}
+
+/* persistence */
+let vPushed = false;
+function vSave(id) {
+  lsSet(VLS.prog, VS.prog);
+  if (!S.db) return;
+  const ref = S.db.doc("verbs/progress"); const data = { cards: { [id]: VS.prog[id] } };
+  const run = async () => {
+    try {
+      if (VS.progDoc) await ref.update(data);
+      else { const snap = await ref.get(); if (snap.exists) { VS.progDoc = true; await ref.update(data); } else { await ref.set(data); VS.progDoc = true; } }
+    } catch (e) { if (e && e.code === "unavailable") { await new Promise((r) => setTimeout(r, 700)); try { await ref.update(data); } catch {} } }
+  };
+  const prev = writeChains.get("verbs") || Promise.resolve(); writeChains.set("verbs", prev.then(run, run));
+}
+function vGrade(id, f, ok) {
+  const now = Date.now(); const k = "f" + f;
+  const p = Object.assign({ b: 0, due: 0, r: 0, w: 0 }, vRec(id, f) || {}); const before = p.b;
+  if (ok) { p.b = Math.min(5, p.b + 1); p.r++; p.due = now + INTERVAL_DAYS[p.b] * DAY - 2 * 36e5; }
+  else { p.b = 1; p.w++; p.due = now + 10 * 6e4; }
+  p.last = now;
+  VS.prog[id] = Object.assign({}, VS.prog[id] || {}, { [k]: p }); vSave(id);
+  return { before, after: p.b };
+}
+function connectVerbs(db) {
+  db.doc("verbs/list").onSnapshot((d) => {
+    const doc = d.exists ? d.data() || {} : {}; const arr = doc.verbs;
+    if (doc.notes) { VS.notes = doc.notes; lsSet(VLS.notes, VS.notes); }
+    if (Array.isArray(arr)) { vSetList(arr); lsSet(VLS.list, VS.list); VS.state = "live"; } else VS.state = VS.list.length ? "live" : "empty";
+    if (!VS.quiz) renderVerbs();
+  }, () => { VS.state = "offline"; if (!VS.quiz) renderVerbs(); });
+  db.doc("verbs/audio").onSnapshot((d) => { if (d.exists) { VS.clips = (d.data() || {}).clips || {}; lsSet(VLS.clips, VS.clips); if (!VS.quiz) renderVerbs(); } }, () => {});
+  db.doc("verbs/progress").onSnapshot((d) => {
+    if (d.exists) VS.progDoc = true;
+    const remote = (d.exists && (d.data() || {}).cards) || {};
+    const ids = new Set([...Object.keys(remote), ...Object.keys(VS.prog)]); const merged = {}; const pushUp = [];
+    for (const id of ids) {
+      const r = remote[id] || {}, m = VS.prog[id] || {}; const out = {}; let mineNewer = false;
+      for (const k of ["f2", "f3"]) { const a = r[k], b = m[k]; if (a && (!b || (a.last || 0) >= (b.last || 0))) out[k] = a; else if (b) { out[k] = b; mineNewer = true; } }
+      merged[id] = out; if (mineNewer) pushUp.push(id);
+    }
+    VS.prog = merged; lsSet(VLS.prog, VS.prog);
+    if (!vPushed && !(d.metadata && d.metadata.fromCache)) { vPushed = true; pushUp.forEach(vSave); }
+    if (!VS.quiz) renderVerbs();
+  }, () => {});
+}
+function bootVerbs() {
+  const l = lsGet(VLS.list, null); if (Array.isArray(l)) vSetList(l);
+  VS.prog = lsGet(VLS.prog, {}) || {}; VS.clips = lsGet(VLS.clips, {}) || {}; VS.notes = lsGet(VLS.notes, null);
+  const st = lsGet(VLS.settings, null); if (st) { if (st.mode) $("v-mode").value = st.mode; if (st.size) $("v-size").value = st.size; }
+}
+const vSaveSettings = () => lsSet(VLS.settings, { mode: $("v-mode").value, size: $("v-size").value });
+
+/* audio */
+function vClip(id, clip) { const c = VS.clips[id]; return c && c[clip] ? c[clip] : null; }
+function vPlayBtn(id, clip, label, cls = "") {
+  return vClip(id, clip) ? `<button type="button" class="play ${cls}" data-vplay="${esc(id)}" data-vclip="${clip}" aria-label="Play ${esc(label)}"><span class="ic">${PLAY_SVG}<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>${esc(label)}</button>` : "";
+}
+async function vPlay(id, clip, btn) {
+  const url = vClip(id, clip); if (!url) return;
+  if (btn && playingBtn === btn && !player.paused) { player.pause(); return; }
+  stopUI(); player.src = url; player.playbackRate = S.rate; player.preservesPitch = true;
+  if (btn) { btn.classList.add("playing"); playingBtn = btn; }
+  try { await player.play(); player.playbackRate = S.rate; } catch { stopUI(); }
+}
+
+/* sentence helpers */
+const vEx = (v, f) => (f === 2 ? v.ex2 : v.ex3);
+function vSpan(v, f) { // where the answer sits in the sentence: {i, a}
+  const x = vEx(v, f);
+  if (f === 3) { const h = x.s.indexOf(x.hl); if (h >= 0) return { i: h + x.hl.lastIndexOf(x.a), a: x.a }; }
+  const m = new RegExp("\\b" + x.a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b").exec(x.s);
+  return { i: m ? m.index : x.s.indexOf(x.a), a: x.a };
+}
+function vMarked(v, f) {
+  const x = vEx(v, f); const hl = f === 3 ? x.hl : x.a; const i = f === 3 ? x.s.indexOf(hl) : vSpan(v, 2).i;
+  if (i < 0) return esc(x.s);
+  return esc(x.s.slice(0, i)) + "<mark>" + esc(hl) + "</mark>" + esc(x.s.slice(i + hl.length));
+}
+function vExHTML(v, f) {
+  const x = vEx(v, f);
+  const tag = f === 2 ? "V2 · past simple" : `V3 · ${x.m} + V3`;
+  return `<div class="vex"><div class="extag">${esc(tag)}</div><div class="ex">${vMarked(v, f)}</div><div class="ru">${esc(x.ru)}</div>${vPlayBtn(v.id, "ex" + f, "Example")}</div>`;
+}
+function vMeters(id) {
+  return `<span class="vmeters"><span class="stage" title="Past simple: ${STAGES[vBox(id, 2)]}">V2 ${meterHTML(vBox(id, 2))}</span><span class="stage" title="Past participle: ${STAGES[vBox(id, 3)]}">V3 ${meterHTML(vBox(id, 3))}</span></span>`;
+}
+
+/* rendering: verbs tab */
+function renderVerbs() {
+  if (S.tab !== "verbs" || VS.quiz) return;
+  const c = vCounts(); const nt = vNotes();
+  $("v-cheat").innerHTML = MODALS.map((m) => `<span><b>${esc(m)} + V3</b> — ${esc(nt.modals[m])}</span>`).join("");
+  $("vst-due").textContent = c.due; $("vst-new").textContent = c.fresh; $("vst-grow").textContent = c.grow; $("vst-done").textContent = c.done;
+  const start = $("v-start"); const size = +$("v-size").value;
+  if (!VS.list.length) {
+    start.disabled = true; start.textContent = "Start session";
+    $("v-plan").textContent = VS.state === "offline" || S.dbState === "offline" ? "The verb list loads from your word store — open the page on claude.ai while signed in." : "Loading the verb list…";
+  } else {
+    const p = vPlan(size, $("v-mode").value, true);
+    start.disabled = !p.n; start.textContent = p.n ? `Start session · ${p.n}` : "Nothing to practise";
+    const parts = []; if (p.nDue) parts.push(`${p.nDue} review${p.nDue > 1 ? "s" : ""}`); if (p.nNew) parts.push(`${p.nNew} new`); if (p.nExtra) parts.push(`${p.nExtra} extra practice`);
+    $("v-plan").textContent = `${VS.list.length} irregular verbs, V2 and V3 tracked separately.` + (parts.length ? ` This session: ${parts.join(" + ")}.` : "");
+  }
+  const raw = $("v-q").value.trim().toLowerCase();
+  const vs = raw ? VS.list.filter((v) => [v.v1, ...v.v2, ...v.v3, v.ru].join(" ").toLowerCase().includes(raw)) : VS.list;
+  $("v-count").textContent = VS.list.length ? `${vs.length} of ${VS.list.length} verbs` : "";
+  $("v-list").innerHTML = vs.length ? vs.map((v) => `<details class="vrow" data-vrow="${esc(v.id)}"><summary><span class="vn tnum">${v.n}</span><span class="vf">${esc(vForms(v))}</span><span class="ru">${esc(v.ru)}</span>${vSeen(v.id) ? vMeters(v.id) : `<span class="stage">${meterHTML(0)}Seed</span>`}</summary>
+      <div class="vbody">${vPlayBtn(v.id, "forms", "Forms")}${vExHTML(v, 2)}${vExHTML(v, 3)}</div></details>`).join("") : `<div class="empty">${VS.list.length ? "No verbs match." : "Verbs appear here once the word store answers."}</div>`;
+}
+
+/* quiz */
+function vStart(queue) {
+  if (!queue.length) return;
+  VS.quiz = { queue, i: 0, right: 0, wrong: 0, answered: 0, missed: new Map(), requeued: new Set(), state: "ask", logged: false };
+  show("vquiz"); vRenderCard();
+}
+const vCur = () => { const q = VS.quiz; return q && q.queue[q.i]; };
+function vRenderCard() {
+  const q = VS.quiz; if (!q) return;
+  if (q.i >= q.queue.length) return vDone();
+  const it = vCur(); const v = VS.byId.get(it.id); if (!v) { q.queue.splice(q.i, 1); return vRenderCard(); }
+  q.state = "ask"; q.cur = { it, v };
+  $("vqprog").style.width = `${(q.i / q.queue.length) * 100}%`; $("vqcount").textContent = `${q.i + 1} / ${q.queue.length}`;
+  if (it.mode === "type") {
+    $("vqcard").innerHTML = `<div class="qtop"><span class="label">Type the forms</span>${vMeters(v.id)}</div>
+      <div><div class="prompt big-phrase">${esc(v.v1)}</div><div class="ru">${esc(v.ru)}</div></div>
+      <form id="vform" class="vform" autocomplete="off">
+        <label><span class="label">Past simple · V2</span><input class="answer-in" id="vin2" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next"></label>
+        <label><span class="label">Past participle · V3</span><input class="answer-in" id="vin3" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></label>
+        <div class="row"><button class="btn primary" type="submit" id="vcheck">Check</button><button class="btn" type="button" id="v-giveup">Show answer</button></div>
+      </form><div id="vres"></div>`;
+    $("vqkeys").textContent = "Tab between fields · Enter to check, Enter again for the next verb";
+    setTimeout(() => { const el = $("vin2"); if (el) el.focus(); }, 30);
+  } else {
+    const f = it.f; const x = vEx(v, f); const sp = vSpan(v, f);
+    const t = (v["t" + f] || []).filter((o) => o !== sp.a);
+    const opts = shuffle([sp.a, ...(t.length ? [t[0]] : []), ...shuffle(t.slice(1, 5)).slice(0, 2)]);
+    q.cur.opts = opts; q.cur.answer = sp.a;
+    const gap = `${esc(x.s.slice(0, sp.i))}<span class="gap">${esc(sp.a)}</span> <span class="muted">(${esc(v.v1)})</span>${esc(x.s.slice(sp.i + sp.a.length))}`;
+    $("vqcard").innerHTML = `<div class="qtop"><span class="label">Spot the right form · ${f === 2 ? "past simple or…?" : x.m + " + ?"}</span>${vMeters(v.id)}</div>
+      <div class="prompt">${gap}</div><div class="ru">${esc(x.ru)}</div>
+      <div class="opts">${opts.map((o, i) => `<button class="opt" data-vopt="${i}"><span class="k">${i + 1}</span><span>${esc(o)}</span></button>`).join("")}</div><div id="vres"></div>`;
+    $("vqkeys").textContent = "Keys 1–4 to answer · Enter for the next one";
+  }
+}
+function vParse(s) { return String(s || "").toLowerCase().replace(/[’‘`]/g, "'").split(/[\s,\/;]+/).filter(Boolean); }
+function vCheckForm(input, valid) { const toks = vParse(input); return toks.length > 0 && toks.every((t) => valid.includes(t)); }
+function vResultHTML(v, verdict) {
+  return `${verdict}<div class="detail">
+    <div class="vforms-big">${esc(vForms(v))}</div>${vPlayBtn(v.id, "forms", "Forms", "big")}
+    ${vExHTML(v, 2)}${vExHTML(v, 3)}
+    <div class="row"><button class="btn primary" id="v-next">${VS.quiz.i + 1 >= VS.quiz.queue.length ? "Finish" : "Next"}</button></div></div>`;
+}
+function vMiss(it, v) {
+  const q = VS.quiz; q.missed.set(v.id, v);
+  if (!q.requeued.has(v.id + ":" + it.mode)) { q.requeued.add(v.id + ":" + it.mode); q.queue.splice(Math.min(q.queue.length, q.i + 4), 0, Object.assign({}, it)); }
+}
+function vCheckType(giveUp) {
+  const q = VS.quiz; if (!q || q.state !== "ask") return; const { it, v } = q.cur;
+  const a2 = giveUp ? "" : $("vin2").value, a3 = giveUp ? "" : $("vin3").value;
+  if (!giveUp && !a2.trim() && !a3.trim()) { $("vin2").focus(); return; }
+  const ok2 = vCheckForm(a2, v.v2), ok3 = vCheckForm(a3, v.v3);
+  vGrade(v.id, 2, ok2); vGrade(v.id, 3, ok3);
+  q.state = "shown"; q.answered++;
+  $("vin2").classList.add(ok2 ? "ok" : "no"); $("vin3").classList.add(ok3 ? "ok" : "no"); $("vin2").readOnly = $("vin3").readOnly = true;
+  $("vcheck").hidden = true; $("v-giveup").hidden = true;
+  const ok = ok2 && ok3; if (ok) q.right++; else { q.wrong++; vMiss(it, v); }
+  const which = !ok2 && !ok3 ? "both forms" : !ok2 ? "V2" : "V3";
+  const verdict = ok ? `<div class="verdict good">Both right</div>` : giveUp ? `<div class="verdict bad">Here it is — it'll come back in a few cards.</div>` : `<div class="verdict bad">Check ${which} — it'll come back in a few cards.</div>`;
+  $("vres").innerHTML = vResultHTML(v, verdict);
+  vPlay(v.id, "forms", document.querySelector("#vres .play"));
+  setTimeout(() => { const n = $("v-next"); if (n) n.focus(); }, 30);
+}
+function vAnswerOpt(i) {
+  const q = VS.quiz; if (!q || q.state !== "ask" || !q.cur.opts) return; const { it, v } = q.cur;
+  const pick = q.cur.opts[i]; if (pick == null) return;
+  const ok = pick === q.cur.answer; vGrade(v.id, it.f, ok);
+  q.state = "shown"; q.answered++; if (ok) q.right++; else { q.wrong++; vMiss(it, v); }
+  document.querySelectorAll("#vqcard .opt").forEach((b, j) => { b.disabled = true; if (q.cur.opts[j] === q.cur.answer) b.classList.add("right"); else if (j === i) b.classList.add("wrong"); });
+  const x = vEx(v, it.f);
+  const nt = vNotes();
+  const rule = it.f === 3 ? `<div class="tip"><b>${esc(x.m)} + V3</b> — ${esc(nt.modals[x.m] || "")}. ${esc(nt.v3_rule)}</div>` : `<div class="tip"><b>Past simple (V2)</b> — ${esc(nt.v2_rule)}</div>`;
+  $("vres").innerHTML = vResultHTML(v, (ok ? `<div class="verdict good">Right</div>` : `<div class="verdict bad">It's “${esc(q.cur.answer)}”${q.cur.answer && v.v2.concat(v.v3).includes(pick) ? ` — “${esc(pick)}” is the ${v.v2.includes(pick) ? "2nd" : "3rd"} form` : ""}</div>`) + rule);
+  vPlay(v.id, "ex" + it.f, document.querySelectorAll("#vres .play")[it.f === 2 ? 1 : 2] || null);
+  setTimeout(() => { const n = $("v-next"); if (n) n.focus(); }, 30);
+}
+function vNext() { const q = VS.quiz; if (!q || q.state !== "shown") return; q.i++; vRenderCard(); }
+function vRecord() {
+  const q = VS.quiz; if (!q || q.logged || !q.answered) return;
+  q.logged = true; const k = dayKey(Date.now()); S.log[k] = (S.log[k] || 0) + 1; saveLog(k);
+}
+function vDone() {
+  const q = VS.quiz; q.state = "done"; vRecord(); const sk = streaks();
+  $("vqprog").style.width = "100%"; $("vqcount").textContent = "Done";
+  const missed = [...q.missed.values()];
+  $("vqcard").innerHTML = `<div class="label">Session complete</div><div class="done-score tnum">${q.right}<span class="muted" style="font-size:1.4rem"> / ${q.right + q.wrong}</span></div>
+    <p class="muted" style="margin:0">${q.wrong ? "Missed forms went back to Sprout and will return soon." : "Every form you saw moved up a stage."}</p>
+    <p style="margin:0"><strong>🔥 ${sk.cur}-day streak</strong> <span class="muted">· session #${sk.total} overall</span></p>
+    ${missed.length ? `<div class="words">${missed.map((v) => `<div class="word"><div class="word-top"><span class="vforms-big">${esc(vForms(v))}</span>${vPlayBtn(v.id, "forms", "Forms")}</div><div class="ru">${esc(v.ru)}</div></div>`).join("")}</div>` : ""}
+    <div class="row">${missed.length ? `<button class="btn" id="v-redo">Practise missed again</button>` : ""}<button class="btn primary" id="v-home">Back to verbs</button></div>`;
+  $("vqkeys").textContent = "";
+}
+function vLeave() { const q = VS.quiz; if (q && q.answered >= 3) vRecord(); VS.quiz = null; show("verbs"); }
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.vplay) { e.preventDefault(); return vPlay(t.dataset.vplay, t.dataset.vclip, t); }
+  if (t.dataset.vopt != null) return vAnswerOpt(+t.dataset.vopt);
+  switch (t.id) {
+    case "v-start": vSaveSettings(); return vStart(vPlan(+$("v-size").value, $("v-mode").value, false));
+    case "v-giveup": return vCheckType(true);
+    case "v-next": return vNext();
+    case "v-quit": case "v-home": return vLeave();
+    case "v-redo": { const mode = $("v-mode").value; return vStart(shuffle([...VS.quiz.missed.values()]).map((v) => ({ id: v.id, f: vBox(v.id, 2) <= vBox(v.id, 3) ? 2 : 3, mode }))); }
+  }
+});
+document.addEventListener("submit", (e) => {
+  if (e.target.id !== "vform") return; e.preventDefault();
+  const q = VS.quiz; if (!q) return;
+  if (q.state === "shown") return vNext();
+  if (document.activeElement && document.activeElement.id === "vin2" && !$("vin3").value.trim()) return $("vin3").focus();
+  vCheckType(false);
+});
+document.addEventListener("keydown", (e) => {
+  const q = VS.quiz; if (!q || $("view-vquiz").hidden) return;
+  if (q.state === "ask" && q.cur && q.cur.opts && /^[1-4]$/.test(e.key)) { e.preventDefault(); return vAnswerOpt(+e.key - 1); }
+  if (q.state === "shown" && e.key === "Enter" && !(e.target && (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT"))) { e.preventDefault(); vNext(); }
+});
+$("v-q").addEventListener("input", renderVerbs);
+$("v-mode").addEventListener("change", () => { vSaveSettings(); renderVerbs(); });
+$("v-size").addEventListener("change", () => { vSaveSettings(); renderVerbs(); });
 
 /* ---------- events ---------- */
 document.addEventListener("click", (e) => {
@@ -886,6 +1229,7 @@ function boot() {
   S.meta = lsGet(LS.meta, null);
   S.log = lsGet(LS.log, {}) || {};
   S.known = lsGet(LS.known, {}) || {};
+  bootVerbs();
   renderAll();
   connect();
 }
@@ -951,6 +1295,7 @@ async function connect() {
     S.audio = m; if (!S.quiz) renderAll();
   }, () => {});
   db.doc("meta/audio").onSnapshot((d) => { S.audioMeta = d.exists ? d.data() : null; }, () => {});
+  connectVerbs(db);
 }
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot();
