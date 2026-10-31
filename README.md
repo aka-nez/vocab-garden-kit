@@ -22,6 +22,10 @@ mode; flashcards; five rotating example sentences per word with "form · context
 native language's traps; "I know this" to retire words; daily streak; filters by unit, corrections and grammar
 patterns; progress synced across devices through the artifact database. Keyboard-friendly, phone-first, light/dark.
 
+**Verbs tab:** 151 common irregular verbs trained on their own — type V2 and V3, or spot the right form among traps
+in a past simple or *should / could / must / might / can't have + V3* sentence. V2 and V3 are scheduled separately;
+every verb comes with two voiced example sentences and their translations.
+
 ## Set it up for someone
 
 This repo is a **handoff for an agent**. In the learner's claude.ai account:
@@ -44,6 +48,7 @@ Details and prerequisites: [`HANDOFF.md`](HANDOFF.md). The procedure Claude foll
 - Claude: whatever plan the learner already has.
 - Audio: OpenRouter TTS, ~$0.035 per word (six clips) at October 2026 prices — roughly $15–20 for a 500-word
   import, cents for a lesson's worth of words. `tts_cache.py plan` shows the exact figure before anything is spent.
+  The Verbs tab adds ~$1.20 once (453 clips, ~15k characters at $0.08 per 1k characters, October 2026).
 
 ## Repo layout
 
@@ -52,6 +57,7 @@ HANDOFF.md                       instructions for the setup agent
 config.example.json              per-learner settings
 page/vocab-garden.template.html  the quiz page (one self-contained file)
 kit/                             runbook, rules, scripts and project instructions for the learner's Claude project
+kit/verbs/                       irregular verbs data (+ translations, notes) and the tool that builds the Verbs tab docs
 tools/render.py                  fills {{PLACEHOLDERS}} from config.json into build/
 examples/                        two fully enriched demo words (data shape + smoke test)
 docs/                            feature animation (GIF/MP4) and its source
@@ -62,6 +68,7 @@ Local smoke test (Python 3.9+; `requests` and `ffmpeg` only needed for audio):
 ```bash
 python3 kit/vocab_merge.py check --fresh examples/enriched.demo.json   # → OK (2 items)
 python3 tools/render.py config.example.json build --only page          # → build/vocab-garden.html
+python3 kit/verbs/verbs_tool.py build --src kit/verbs/verbs_src.txt --notes kit/verbs/notes.ru.json --out build/verbs_list.json  # → 151 verbs
 ```
 
 ## Privacy

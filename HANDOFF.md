@@ -23,7 +23,8 @@ steps in order. Keep a task list.
   quiz artifact db:  units/u<N>  ◀── ArtifactData batch ── out/u<N>.json
                      audio/u<N>  ◀── tts_cache.py jobs→plan→run→pack→upload→attach→docs (OpenRouter TTS)
                      meta/sync, meta/audio, ops/kit
-                     progress/*, stats/*  ← written ONLY by the page (learner's progress)
+                     verbs/list, verbs/audio  ◀── kit/verbs/verbs_tool.py + tts_cache.py (Verbs tab, one-time)
+                     progress/*, stats/*, verbs/progress  ← written ONLY by the page (learner's progress)
   Claude project "vocab/…": runbook, rules, scripts, state.json, caches, vocab_master.csv
   Project custom instructions: "when I send words, follow vocab/RUNBOOK.md"
 ```
@@ -43,6 +44,9 @@ steps in order. Keep a task list.
 | `kit/state.template.json` | Empty state (units, current unit, history). |
 | `kit/project_instructions.md` | Custom instructions for the learner's Claude project. |
 | `tools/render.py` | Fills the `{{PLACEHOLDERS}}` from `config.json` into `build/`. |
+| `kit/verbs/verbs_src.txt` | 151 common irregular verbs: forms, translation, a past simple and a modal-perfect sentence each (Russian translations). |
+| `kit/verbs/verbs_tool.py` | Builds the `verbs/list` doc, the TTS jobs and the `verbs/audio` doc for the Verbs tab. |
+| `kit/verbs/notes.*.json` | Modal meanings and the two grammar tips shown in the Verbs tab (`ru`, `en`). |
 | `config.example.json` | The per-learner settings. |
 | `examples/*.demo.json` | Two fully enriched demo words (shape reference + smoke test). |
 
@@ -98,7 +102,8 @@ spreadsheet, an Anki deck export, photos of old notes).
    - `meta/audio` = `{voice: <VOICE>, model: <TTS_MODEL>, words: 0, clips: 0, chars: 0, cost_usd: 0, updated: <today>}`
 
 The page reads `units`, `progress`, `audio` (≤100 docs each), `meta/sync`, `meta/audio`, `stats/practice`,
-`stats/known`. It writes only `progress/*` and `stats/*`.
+`stats/known`, `verbs/list`, `verbs/audio`, `verbs/progress`. It writes only `progress/*`, `stats/*` and
+`verbs/progress`.
 
 ## Step 3 — Install the kit into the Claude project
 
@@ -140,12 +145,40 @@ The page reads `units`, `progress`, `audio` (≤100 docs each), `meta/sync`, `me
    manifest is what prevents paying twice if the session dies.
 5. Delete the staged key copy (`rm`) the moment `run` finishes.
 
+## Step 5b — Irregular verbs tab
+
+The page has a **Verbs** tab: 151 common irregular verbs trained apart from the learner's own words (own progress,
+never mixed into Study sessions; sessions count toward the same streak). Two modes: "Type the forms" (V2 and V3
+typed, graded separately) and "Spot the trap" (a gap in the past simple or the *should / could / must / might /
+can't have + V3* sentence, 4 options — one is always the other form of the same verb). The tab stays empty until
+`verbs/list` exists. Work in a directory with `kit/verbs/*`, `kit/tts_cache.py` and the project's `audio_cache.json`.
+
+1. **Translations.** `verbs_src.txt` and `notes.ru.json` are Russian. For another `NATIVE_LANG`, translate columns
+   4, 6 and 8 of every line (verb meaning, translation of each sentence) and the values of `notes.ru.json` into that
+   language → `verbs_src.<lang>.txt`, `notes.<lang>.json`. Never touch the English columns (they are what gets
+   voiced). Check with the learner's teacher-eye: natural, short, the modal nuance kept ("must have" = sure guess).
+2. `python3 verbs_tool.py build --src <src> --notes <notes> --out verbs_list.json` (exit 2 lists bad lines; add
+   `--table` to eyeball the trap options) → ArtifactData `set verbs/list` with `file_path` (new doc, no `if_version`).
+3. Audio (≈ 453 clips, ~15k characters — about $1.20 at $0.08 per 1k; `plan` shows the live price. Tell the learner, get a yes):
+   `verbs_tool.py jobs --voice <VOICE> --model <TTS_MODEL> --out verbs_jobs.json` → `tts_cache.py plan --jobs
+   verbs_jobs.json` → `run … --max-chars 20000` → `pack --jobs verbs_jobs.json --artifact <ARTIFACT_URL>` → upload
+   (19 calls of ≤25) → `attach` → `verbs_tool.py audio-doc --jobs verbs_jobs.json --artifact <ARTIFACT_URL>`
+   (exit 2 = some clips not uploaded yet) → ArtifactData `set verbs/audio`. `project_write` `vocab/audio_cache.json`.
+4. Copy `verbs_tool.py`, the source and the notes file you used into the project (`vocab/verbs_tool.py`,
+   `vocab/verbs_src.txt`, `vocab/verbs_notes.json`) so later sessions can fix a sentence and rebuild.
+
+To change a sentence later: edit the source line, `build` → `set verbs/list` (pin `if_version`), `jobs` → only the
+changed clips are new in `plan` → run/pack/upload/attach → `audio-doc` → `set verbs/audio`. Progress is kept (keyed
+by the infinitive).
+
 ## Step 6 — Verify, then hand over
 
 - [ ] Open the artifact: header shows "Words last added …"; "Garden by unit" lists every unit with counts.
 - [ ] Start a 10-card session in Smart mix; answer a few; reload — progress persists (a `progress/u<N>` doc exists).
 - [ ] A word card plays Phrase and Example; IPA and sound tip show; "↻" cycles 5 sentences with "form · context" labels.
 - [ ] "What did you hear?" mode works; "I know this" hides a word and Undo restores it.
+- [ ] Verbs tab: 151 verbs listed with the modal cheat sheet in the learner's language; one session in each mode;
+      Forms and Example play; a `verbs/progress` doc exists afterwards.
 - [ ] `vocab_master.csv` row count = `meta/sync.total` = sum of words in `units/*`.
 - [ ] The project instructions are pasted in (ask the learner to confirm).
 - [ ] Nothing secret anywhere: grep the project docs and `ops/kit` for the key prefix `sk-or-`.
@@ -158,7 +191,7 @@ awake with the Claude desktop app open (the key lives there).
 
 ## Guardrails (also in the runbook)
 
-- Never write or delete `progress/*` or `stats/*` — that is the learner's learning history.
+- Never write or delete `progress/*`, `stats/*` or `verbs/progress` — that is the learner's learning history.
 - Never change or delete existing words unless the learner asks.
 - Never regenerate a clip whose key is already in `audio_cache.json`; never delete uploaded assets.
 - Pin every database write with `if_version` from your last read; on conflict re-read and redo.
@@ -174,3 +207,8 @@ awake with the Claude desktop app open (the key lives there).
 - `first_seen` is parsed from `dd.mm` lesson labels (with year rollover); anything else falls back to today.
 - The translation field is named `ru` regardless of language — don't rename it; the page and scripts expect it.
 - The page loads at most 100 unit docs — plenty, but don't create a unit per lesson.
+- An artifact's asset store holds at most 5,000 files. A word costs 6 clips, the Verbs tab 453 — so one garden
+  fits roughly 750 words with verbs. `Artifact list scope:"assets"` shows the count; warn the learner well before
+  the limit.
+- "read" is voiced through `say` overrides in `verbs_tool.py` ("read, red, red") so the TTS gets the past tense
+  right; add an override there if a new verb has the same problem.

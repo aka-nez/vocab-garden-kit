@@ -1,0 +1,11 @@
+{
+ "modals": {
+  "should have": "it was the right thing to do, but it didn't happen (regret, criticism)",
+  "could have": "it was possible, but it didn't happen",
+  "must have": "I'm almost sure it happened",
+  "might have": "maybe it happened",
+  "can't have": "I'm sure it didn't happen"
+ },
+ "v2_rule": "a finished action in the past.",
+ "v3_rule": "After a modal + have, always use the 3rd form."
+}
